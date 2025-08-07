@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36301.6 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRhSystem.Domain", "MyRhSystem.Domain\MyRhSystem.Domain.csproj", "{8B1B88A3-71F3-4C07-B01C-8CFFFAF67D1F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRhSystem.Application", "MyRhSystem.Application\MyRhSystem.Application.csproj", "{E4FD809B-E937-4B37-BB82-5CE40D8B15DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRhSystem.Infrastructure", "MyRhSystem.Infrastructure\MyRhSystem.Infrastructure.csproj", "{B46C9910-995E-4668-B594-EC883322C477}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRhSystem.UI.Shared", "MyRhSystem.UI.Shared\MyRhSystem.UI.Shared.csproj", "{F195B7E2-003A-4672-9856-F1CDC7A93B49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyRhSystem.APP", "MyRhSystem.APP\MyRhSystem.APP.csproj", "{4CB30010-F33B-47D2-8846-F19E3B7EA685}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8B1B88A3-71F3-4C07-B01C-8CFFFAF67D1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B1B88A3-71F3-4C07-B01C-8CFFFAF67D1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B1B88A3-71F3-4C07-B01C-8CFFFAF67D1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B1B88A3-71F3-4C07-B01C-8CFFFAF67D1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4FD809B-E937-4B37-BB82-5CE40D8B15DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4FD809B-E937-4B37-BB82-5CE40D8B15DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4FD809B-E937-4B37-BB82-5CE40D8B15DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4FD809B-E937-4B37-BB82-5CE40D8B15DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B46C9910-995E-4668-B594-EC883322C477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B46C9910-995E-4668-B594-EC883322C477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B46C9910-995E-4668-B594-EC883322C477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B46C9910-995E-4668-B594-EC883322C477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F195B7E2-003A-4672-9856-F1CDC7A93B49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F195B7E2-003A-4672-9856-F1CDC7A93B49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F195B7E2-003A-4672-9856-F1CDC7A93B49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F195B7E2-003A-4672-9856-F1CDC7A93B49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8B1B88A3-71F3-4C07-B01C-8CFFFAF67D1F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E4FD809B-E937-4B37-BB82-5CE40D8B15DC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{B46C9910-995E-4668-B594-EC883322C477} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{F195B7E2-003A-4672-9856-F1CDC7A93B49} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4CB30010-F33B-47D2-8846-F19E3B7EA685} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7931AF8A-D0AC-4415-AC69-CBBC2F2E7FE4}
+	EndGlobalSection
+EndGlobal
