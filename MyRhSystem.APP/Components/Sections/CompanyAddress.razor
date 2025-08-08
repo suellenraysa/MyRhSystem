@@ -1,0 +1,40 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inherits ComponentBase
+
+<div class="mb-4">
+    <h5 class="mb-3">
+        <i class="bi bi-geo-alt-fill text-success"></i>
+        Endereço da Empresa
+    </h5>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Endereço *</label>
+        <InputText class="form-control" @bind-Value="Model.FullAddress" />
+        <ValidationMessage For="@(() => Model.FullAddress)" />
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Cidade *</label>
+            <InputText class="form-control" @bind-Value="Model.City" />
+            <ValidationMessage For="@(() => Model.City)" />
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <label class="form-label fw-semibold">Estado *</label>
+            <InputText class="form-control" @bind-Value="Model.State" />
+            <ValidationMessage For="@(() => Model.State)" />
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <label class="form-label fw-semibold">CEP *</label>
+            <InputText class="form-control" @bind-Value="Model.ZipCode" />
+            <ValidationMessage For="@(() => Model.ZipCode)" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CompanyAddressModel Model { get; set; } = default!;
+}

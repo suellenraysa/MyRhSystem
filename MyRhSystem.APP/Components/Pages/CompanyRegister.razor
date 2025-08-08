@@ -1,0 +1,44 @@
+﻿@page "/company-registration"
+@using MyRhSystem.APP.Shared.Models
+@using MyRhSystem.APP.Components.Sections
+@inherits CompanyRegisterBase
+
+<PageTitle>Cadastro de Empresa</PageTitle>
+<div class="page-background">
+    <div class="form-container">
+        <div class="company-register-wrapper">
+            <div class="company-register-header text-center">
+                <div class="icon-box mb-3">
+                    <i class="bi bi-buildings"></i>
+                </div>
+                <h2>Cadastro de Empresa</h2>
+                <p class="text-muted">Registre sua empresa e comece a crescer</p>
+            </div>
+
+            <EditForm Model="@Model" OnValidSubmit="SalvarEmpresa">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <CompanyBasicInfo Model="Model.BasicInfo" />
+                <CompanyAddress Model="Model.Address" />
+                <BusinessInfo Model="Model.BusinessInfo" />
+                <LegalRepresentative Model="Model.LegalRepresentative" />
+                <BankingInfo Model="Model.BankingInfo" />
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-success w-100" type="submit" disabled="@IsLoading">
+                        @if (IsLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+                            <span class="ms-2">Salvando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-circle"></i> <span class="ms-2">Cadastrar Empresa</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
