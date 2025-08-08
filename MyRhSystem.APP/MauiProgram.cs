@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MyRhSystem.APP.Shared.Services;
 using MyRhSystem.APP.Shared.ViewModels;
 using MyRhSystem.Application.Services;
 using MyRhSystem.Infrastructure.Persistence;
