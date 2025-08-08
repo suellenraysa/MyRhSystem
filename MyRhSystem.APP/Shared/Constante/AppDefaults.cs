@@ -26,4 +26,9 @@ public static class AppDefaults
         "R$ 3.001 - R$ 5.000", "R$ 5.001 - R$ 8.000", "R$ 8.001 - R$ 12.000",
         "R$ 12.001 - R$ 20.000", "Acima de R$ 20.000"
     };
+
+    public static readonly string[] WorkRegime = new[]
+    {
+        "CLT", "PJ", "Estágio"
+    };
 }

@@ -1,0 +1,255 @@
+﻿@page "/Employees"
+@inherits FuncionariosBase
+@using System.Globalization
+
+<div class="employees-page">
+
+    <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-people text-success fs-4"></i>
+            <h3 class="page-title m-0 fw-bold">Funcionários</h3>
+        </div>
+
+        <button class="btn btn-success btn-new" @onclick="NewEmployee">
+            <i class="bi bi-plus-lg me-1"></i> Novo Funcionário
+        </button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body py-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input class="form-control" placeholder="Buscar funcionários..."
+                               @bind="Search" @bind:event="oninput" />
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <!-- select atualizado (com contagens) -->
+                    <select class="form-select"
+                            @bind="DeptFilter"
+                            @bind:after="ApplyFilter">
+                        <option value="">Todos os departamentos (@TotalCount)</option>
+                        @foreach (var d in Departments)
+                        {
+                            var c = DeptCounts.TryGetValue(d, out var q) ? q : 0;
+                            <option value="@d">@d (@c)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>  @* <-- faltava fechar a .card *@
+
+    <!-- Tabela -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Funcionário</th>
+                        <th>E‑mail</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th>Contratação</th>
+                        <th>Departamento</th>
+                        <th>Salário</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width:110px">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Filtered)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-start gap-2">
+                                    <div class="avatar avatar-sm bg-success-subtle text-success">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div class="lh-sm">
+                                        <div class="fw-semibold">@f.Nome</div>
+                                        <div class="text-muted small">@f.Cargo</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="small"><i class="bi bi-envelope me-1 text-muted"></i>@f.Email</td>
+                            <td class="small"><i class="bi bi-telephone me-1 text-muted"></i>@f.Telefone</td>
+                            <td class="small"><i class="bi bi-geo-alt me-1 text-muted"></i>@f.Cidade, @f.UF</td>
+                            <td class="small">
+                                <i class="bi bi-calendar-event me-1 text-muted"></i>@(f.Contratacao.HasValue
+                                                            ? f.Contratacao.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)
+                                                        : "")
+                            </td>
+                            <td><span class="badge badge-dept bg-secondary-subtle text-secondary">@f.Departamento</span></td>
+                            <td class="fw-semibold">
+                                @f.Salario.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill @(f.Ativo ? "badge-status-ativo" : "badge-status-inativo")">
+                                    @(f.Ativo ? "Ativo" : "Inativo")
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary" title="Visualizar" @onclick="() => View(f)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary" title="Editar" @onclick="() => Edit(f)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" title="Excluir" @onclick="() => ConfirmDelete(f)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal (View/Edit/Create) -->
+    @if (ShowForm)
+    {
+        <div class="modal-backdrop2" @onclick="CloseForm"></div>
+        <div class="modal2">
+            <div class="modal2-header">
+                <h5 class="m-0">@FormTitle</h5>
+                <button class="btn btn-sm btn-light" @onclick="CloseForm"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal2-body">
+                @if (IsViewOnly)
+                {
+                    <dl class="row">
+                        <dt class="col-sm-3">Nome</dt>
+                        <dd class="col-sm-9">@Details.Nome</dd>
+                        <dt class="col-sm-3">Cargo</dt>
+                        <dd class="col-sm-9">@Details.Cargo</dd>
+                        <dt class="col-sm-3">Departamento</dt>
+                        <dd class="col-sm-9">@Details.Departamento</dd>
+                        <dt class="col-sm-3">E‑mail</dt>
+                        <dd class="col-sm-9">@Details.Email</dd>
+                        <dt class="col-sm-3">Telefone</dt>
+                        <dd class="col-sm-9">@Details.Telefone</dd>
+                        <dt class="col-sm-3">Endereço</dt>
+                        <dd class="col-sm-9">@Details.Logradouro, @Details.Numero - @Details.Bairro - @Details.Cidade/@Details.UF - @Details.Cep</dd>
+                        <dt class="col-sm-3">Contratação</dt>
+                        <dd class="col-sm-9">@Details.Contratacao?.ToString("dd/MM/yyyy")</dd>
+                        <dt class="col-sm-3">Salário</dt>
+                        <dd class="col-sm-9">@Details.Salario.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</dd>
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">@(Details.Ativo ? "Ativo" : "Inativo")</dd>
+                    </dl>
+                }
+                else
+                {
+                    <!-- Mantive o form compacto; quando quiser habilitamos o wizard com todos os campos -->
+                    <EditForm Model="Details" OnValidSubmit="SaveAsync">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nome</label>
+                                <InputText class="form-control" @bind-Value="Details.Nome" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Sobrenome</label>
+                                <InputText class="form-control" @bind-Value="Details.Sobrenome" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Departamento</label>
+                                <InputText class="form-control" @bind-Value="Details.Departamento" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Cargo</label>
+                                <InputText class="form-control" @bind-Value="Details.Cargo" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">E‑mail</label>
+                                <InputText class="form-control" @bind-Value="Details.Email" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Telefone</label>
+                                <InputText class="form-control" @bind-Value="Details.Telefone" />
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Endereço (logradouro)</label>
+                                <InputText class="form-control" @bind-Value="Details.Logradouro" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Nº</label>
+                                <InputText class="form-control" @bind-Value="Details.Numero" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Bairro</label>
+                                <InputText class="form-control" @bind-Value="Details.Bairro" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Cidade</label>
+                                <InputText class="form-control" @bind-Value="Details.Cidade" />
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">UF</label>
+                                <InputText class="form-control" @bind-Value="Details.UF" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">CEP</label>
+                                <InputText class="form-control" @bind-Value="Details.Cep" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Contratação</label>
+                                <InputDate class="form-control" @bind-Value="Details.Contratacao"
+                                           @bind-Value:format="dd/MM/yyyy" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Salário</label>
+                                <InputNumber TValue="decimal" class="form-control" @bind-Value="Details.Salario" />
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Details.Ativo" />
+                                    <label class="form-check-label">Ativo</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <button type="button" class="btn btn-outline-secondary me-2" @onclick="CloseForm">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Salvar</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Modal confirmação delete -->
+    @if (ShowConfirmDelete)
+    {
+        <div class="modal-backdrop2" @onclick="CancelDelete"></div>
+        <div class="modal2 modal2-sm">
+            <div class="modal2-header">
+                <h6 class="m-0">Excluir Funcionário</h6>
+                <button class="btn btn-sm btn-light" @onclick="CancelDelete"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal2-body">
+                Tem certeza que deseja excluir <strong>@($"{Details.Nome} {Details.Sobrenome}")</strong>?
+                <div class="text-end mt-3">
+                    <button class="btn btn-outline-secondary me-2" @onclick="CancelDelete">Cancelar</button>
+                    <button class="btn btn-danger" @onclick="DeleteAsync">Excluir</button>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MyRhSystem.APP.Shared.Services;
+using MyRhSystem.Application.Employees;
+using MyRhSystem.Infrastructure.Employees;
 
 
 namespace MyRhSystem.APP
@@ -19,6 +21,7 @@ namespace MyRhSystem.APP
 
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
             builder.Services.AddHttpClient<CompanyRegisterApiService>(client =>
             {
                 client.BaseAddress = new Uri("http://10.0.2.2:5000/");
