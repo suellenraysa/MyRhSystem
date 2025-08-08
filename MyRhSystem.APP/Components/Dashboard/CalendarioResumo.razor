@@ -1,0 +1,36 @@
+﻿@using MyRhSystem.APP.Shared.Models;
+@using Microsoft.AspNetCore.Components;
+
+<div class="calendario-box">
+    <h4><i class="icon">📅</i> Calendário - agosto de 2025</h4>
+
+    <!-- Mock estático -->
+    <table class="calendario">
+        <thead>
+            <tr>
+                <th>Dom</th>
+                <th>Seg</th>
+                <th>Ter</th>
+                <th>Qua</th>
+                <th>Qui</th>
+                <th>Sex</th>
+                <th>Sáb</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>28</td><td>29</td><td>30</td><td>31</td><td class="hoje">1</td><td>2</td><td>3</td></tr>
+        </tbody>
+    </table>
+
+    <div class="eventos">
+        <h5>Próximos Eventos</h5>
+        @foreach (var e in Eventos)
+        {
+            <p><span class="ponto @e.Cor"></span> <b>@e.Titulo</b> <br />@e.DataHora:HH:mm</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<EventoModel> Eventos { get; set; } = new();
+}

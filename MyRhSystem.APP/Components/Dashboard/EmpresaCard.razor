@@ -1,0 +1,48 @@
+﻿@using MyRhSystem.APP.Shared.Models
+@using Microsoft.AspNetCore.Components
+
+<div class="empresa-card @(Selecionada ? "selecionada" : "")" @onclick="OnSelecionar">
+    <div class="empresa-cabecalho">
+        <i class="bi bi-buildings empresa-icon text-success"></i>
+        <div>
+            <strong class="empresa-nome">@Company.Nome</strong>
+            <span class="badge-setor @GetSetorClasse(Company.Setor)">
+                @Company.Setor
+            </span>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Company.Descricao))
+    {
+        <p class="empresa-descricao">@Company.Descricao</p>
+    }
+
+    <div class="empresa-detalhes">
+        <span><i class="bi bi-people-fill me-1"></i>@Company.Funcionarios funcionários</span> •
+        <span><i class="bi bi-geo-alt me-1"></i>@Company.Local</span> •
+        @if (!string.IsNullOrWhiteSpace(Company.Site))
+        {
+            <a href="https://@Company.Site" target="_blank">
+                <i class="bi bi-link-45deg me-1"></i>@Company.Site
+            </a>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public CompanyModel Company { get; set; } = new();
+    [Parameter] public bool Selecionada { get; set; }
+    [Parameter] public EventCallback OnSelecionar { get; set; }
+
+    private string GetSetorClasse(string setor)
+    {
+        return setor.ToLower() switch
+        {
+            "tecnologia" => "setor-tecnologia",
+            "construção" => "setor-construcao",
+            "comércio" => "setor-comercio",
+            "saúde" => "setor-saude",
+            _ => "setor-padrao"
+        };
+    }
+}

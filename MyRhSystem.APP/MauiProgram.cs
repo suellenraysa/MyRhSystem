@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyRhSystem.APP.Shared.ViewModels;
 using MyRhSystem.Application.Services;
 using MyRhSystem.Infrastructure.Persistence;
 using MyRhSystem.Infrastructure.Seed;
+
 
 namespace MyRhSystem.APP
 {
@@ -22,9 +24,13 @@ namespace MyRhSystem.APP
 
             
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddHttpClient<CompanyRegisterApiService>(client =>
+            {
+                client.BaseAddress = new Uri("http://10.0.2.2:5000/");
+            });
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 
