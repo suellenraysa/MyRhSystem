@@ -1,0 +1,38 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inherits ComponentBase
+
+<div class="mb-4">
+    <h5 class="mb-3">
+        <i class="bi bi-info-circle-fill me-2 text-success"></i>
+        Informações Básicas
+    </h5>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Razão Social *</label>
+        <InputText class="form-control" @bind-Value="Model.CompanyName" />
+        <ValidationMessage For="@(() => Model.CompanyName)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">CNPJ *</label>
+        <InputText class="form-control" @bind-Value="Model.CNPJ" />
+        <ValidationMessage For="@(() => Model.CNPJ)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Telefone *</label>
+        <InputText class="form-control" @bind-Value="Model.Phone" />
+        <ValidationMessage For="@(() => Model.Phone)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Email *</label>
+        <InputText class="form-control" @bind-Value="Model.Email" />
+        <ValidationMessage For="@(() => Model.Email)" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public CompanyBasicInfoModel Model { get; set; } = default!;
+}

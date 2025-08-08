@@ -1,0 +1,38 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inherits ComponentBase
+
+<div class="mb-4">
+    <h5 class="mb-3">
+        <i class="bi bi-person-badge-fill text-success"></i>
+        Representante Legal
+    </h5>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Nome Completo *</label>
+        <InputText class="form-control" @bind-Value="Model.FullName" />
+        <ValidationMessage For="@(() => Model.FullName)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">CPF *</label>
+        <InputText class="form-control" @bind-Value="Model.CPF" />
+        <ValidationMessage For="@(() => Model.CPF)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Telefone *</label>
+        <InputText class="form-control" @bind-Value="Model.Phone" />
+        <ValidationMessage For="@(() => Model.Phone)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">E-mail *</label>
+        <InputText class="form-control" @bind-Value="Model.Email" />
+        <ValidationMessage For="@(() => Model.Email)" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public LegalRepresentativeModel Model { get; set; } = default!;
+}

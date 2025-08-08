@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Components;
+
+<div class="resumo-card @Cor">
+    <div class="resumo-icon">
+        <i class="icon">@Icone</i>
+    </div>
+    <div class="resumo-content">
+        <div class="resumo-valor">@Valor</div>
+        <div class="resumo-titulo">@Titulo</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Titulo { get; set; } = "";
+    [Parameter] public int Valor { get; set; }
+    [Parameter] public string Icone { get; set; } = "info";
+    [Parameter] public string Cor { get; set; } = "blue";
+}
