@@ -1,21 +1,23 @@
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
+    display: block;
     width: 3.5rem;
     height: 2.5rem;
-    color: yellow;
+    color: #4EF37A;
     position: absolute;
     top: 0.5rem;
     background-color: #003838;
     right: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    /*background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 244, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);*/
-    background: Black;
+    border: 1px solid rgba(78, 243, 122, 0.1);
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 244, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+    /*background: Yellow;*/
 }
 
-.navbar-toggler:checked {
-    background-color: #003838;
-}
+    .navbar-toggler:checked {
+        display: block;
+        background-color: #003838;
+    }
 
 .top-row {
     height: 3.5rem;
@@ -113,8 +115,15 @@
         }
 
 .nav-scrollable {
+    display: none; /* esconde por padrão */
     background-color: #003838;
-    min-height: 100vh;
+    position: absolute;
+    top: 3.5rem; /* abaixo da top-row */
+    left: 0;
+    width: 250px; /* ajuste à sua largura de sidebar */
+    height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+    z-index: 1000; /* acima do conteúdo */
 }
 
 .nav-link {
@@ -128,16 +137,26 @@
     display: block;
 }
 
+.content {
+    margin-left: 0; /* sem deslocamento no mobile */
+    padding-top: 1.1rem;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
     }
 
     .nav-scrollable {
-        /* Never collapse the sidebar for wide screens */
-        display: block;
-        /* Allow sidebar to scroll for tall menus */
+        display: block; /* menu fixo */
+        position: static;
+        width: 250px;
         height: calc(100vh - 3.5rem);
-        overflow-y: auto;
+    }
+
+    .content {
+        margin-left: 250px; /* desloca o conteúdo ao lado da sidebar */
     }
 }
+
+
