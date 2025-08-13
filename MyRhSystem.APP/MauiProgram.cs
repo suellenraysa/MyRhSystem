@@ -1,12 +1,7 @@
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyRhSystem.APP.Shared.Services;
 using MyRhSystem.APP.Shared.ViewModels;
-using MyRhSystem.Application.Services;
-using MyRhSystem.Infrastructure.Persistence;
-using MyRhSystem.Infrastructure.Seed;
-
+using MyRhSystem.APP.ViewModels;
 
 namespace MyRhSystem.APP
 {
@@ -21,47 +16,66 @@ namespace MyRhSystem.APP
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
-                
 
-            
             builder.Services.AddMauiBlazorWebView();
-            builder.Services.AddHttpClient<CompanyRegisterApiService>(client =>
-            {
-                client.BaseAddress = new Uri("http://10.0.2.2:5000/");
-            });
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            // =========================
+            // Backend base URL por plataforma
+            // =========================
+#if WINDOWS
+            const string BackendBase = "https://localhost:7006/";
+#elif ANDROID
+            // Emulador Android acessa a m�quina host por 10.0.2.2
+            const string BackendBase = "https://10.0.2.2:7006/";
+#elif IOS
+            // Use o IP da sua m�quina (se rodando no simulador/devices)
+            // Ex.: "https://192.168.0.10:7006/"
+            const string BackendBase = "https://192.168.0.10:7006/";
+#else
+            const string BackendBase = "https://localhost:7006/";
+#endif
+
+            // Handler que aceita o certificado de dev (apenas em DEBUG)
+            HttpMessageHandler DevHandlerFactory()
             {
-                var dbPath = Path.Combine(FileSystem.AppDataDirectory, "hrsystem.db");
-                System.Diagnostics.Debug.WriteLine($">>> DB em: {dbPath}");
-                options.UseSqlite($"Data Source={dbPath}");
-
-                options.UseSqlite($"Data Source={Path.Combine(FileSystem.AppDataDirectory, "hrsystem.db")}");
-            });
-            builder.Services.AddTransient<DataSeeder>();
-            builder.Services.AddTransient<UserViewModel>();
-
-            builder.Services.AddScoped<UserService>();
-
-            var app = builder.Build();
-
-            // aqui: cria o arquivo e as tabelas se ainda não existirem
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                // se você já gerou migrations e quer aplicá-las:
-                db.Database.Migrate();
-                // ou, se não usou migrations, apenas crie o schema:
-                // db.Database.EnsureCreated();
+#if DEBUG
+                return new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (msg, cert, chain, errors) => true
+                };
+#else
+                return new HttpClientHandler();
+#endif
             }
 
-          
+            // =========================
+            // HTTP CLIENTS TIPADOS
+            // =========================
 
+          
+            builder.Services.AddHttpClient<UsersApiService>(c =>
+            {
+                c.BaseAddress = new Uri(BackendBase);
+            }).ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
+
+            builder.Services.AddHttpClient<AuthApiService>(c =>
+            {
+                c.BaseAddress = new Uri(BackendBase);
+            }).ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
+
+            // =========================
+            // VIEWMODELS
+            // =========================
+            builder.Services.AddScoped<UsersViewModel>();
+            builder.Services.AddScoped<UserEditViewModel>();
+            builder.Services.AddScoped<LoginViewModel>();
+
+            var app = builder.Build();
             return app;
         }
     }

@@ -1,5 +1,4 @@
-﻿using MyRhSystem.Domain.Entities.Funcionarios;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyRhSystem.Domain.Entities.Uniformes;
@@ -32,8 +31,8 @@ public class AtribuicaoUniformes
     [Column("condicoes")]
     public string? Condicoes { get; set; }
 
-    [ForeignKey(nameof(FuncionarioId))]
-    public Funcionario? Funcionario { get; set; }
+    //[ForeignKey(nameof(EmployeeId))]
+    //public Employee? Employee { get; set; }
 
     [ForeignKey(nameof(ItensUniformesId))]
     public ItensUniformes? ItemUniforme { get; set; }

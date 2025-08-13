@@ -1,5 +1,4 @@
-﻿using MyRhSystem.Domain.Entities.Funcionarios;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyRhSystem.Domain.Entities.Payroll;
@@ -38,6 +37,6 @@ public class FolhaDePagamento
     [Column("createdAt")]
     public DateTime CreatedAt { get; set; }
 
-    [ForeignKey(nameof(FuncionarioId))]
-    public Funcionario? Funcionario { get; set; }
+    //[ForeignKey(nameof(FuncionarioId))]
+    //public Funcionario? Funcionario { get; set; }
 }

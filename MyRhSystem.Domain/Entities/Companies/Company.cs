@@ -1,5 +1,4 @@
-﻿using MyRhSystem.Domain.Entities.Funcionarios;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyRhSystem.Domain.Entities.Companies;
@@ -22,6 +21,6 @@ public class Company
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();
-    public ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+    //public ICollection<Employee> Funcionarios { get; set; } = new List<Employee>();
 
 }

@@ -1,0 +1,79 @@
+﻿@page "/users"
+@using System.ComponentModel
+@inject MyRhSystem.APP.Shared.ViewModels.UsersViewModel Vm
+@implements IDisposable
+
+<h3>Usuários</h3>
+
+<div class="mb-3 d-flex gap-2">
+    <input class="form-control" placeholder="Buscar por nome ou e-mail" style="max-width:320px"
+           @bind="Vm.Search" @bind:event="oninput" />
+    <button class="btn btn-primary" @onclick="Vm.GoCreate">Novo</button>
+</div>
+
+@if (Vm.IsLoading)
+{
+    <p><em>Carregando...</em></p>
+}
+else if ((Vm.Data?.Items?.Count ?? 0) == 0)
+{
+    <p>Nenhum registro.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Criado em</th>
+                <th style="width:140px">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in (Vm.Data?.Items ?? Enumerable.Empty<MyRhSystem.Contracts.Users.UserDto>()))
+            {
+                <tr>
+                    <td>@u.Id</td>
+                    <td>@u.Nome</td>
+                    <td>@u.Email</td>
+                    <td>@(u.CreatedAt.ToLocalTime().ToString() ?? "-")</td> @* se for DateTime? *@
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="@(() => Vm.GoEdit(u.Id))">Editar</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => Vm.ConfirmDelete(u.Id))">Excluir</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-secondary" disabled="@(!Vm.CanPrev)" @onclick="Vm.PrevAsync">Anterior</button>
+        <span>Página @Vm.Page de @Vm.TotalPages</span>
+        <button class="btn btn-sm btn-secondary" disabled="@(!Vm.CanNext)" @onclick="Vm.NextAsync">Próxima</button>
+    </div>
+}
+
+@if (Vm.DeleteId.HasValue)
+{
+    <div class="alert alert-warning mt-3 d-flex justify-content-between align-items-center">
+        <span>Confirma excluir o usuário <strong>@Vm.DeleteId</strong>?</span>
+        <div>
+            <button class="btn btn-sm btn-danger me-2" @onclick="Vm.DeleteAsync">Excluir</button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="Vm.CancelDelete">Cancelar</button>
+        </div>
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        Vm.PropertyChanged += OnVmChanged;
+        await Vm.InitializeAsync();
+    }
+
+    void OnVmChanged(object? s, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Vm.PropertyChanged -= OnVmChanged;
+}

@@ -70,17 +70,11 @@
     <ItemGroup>
 
       <Folder Include="Shared\Models\" />
-      <Folder Include="Shared\Services\" />
-
-      <Folder Include="Shared\ViewModels\" />
 
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MyRhSystem.Application\MyRhSystem.Application.csproj" />
-      <ProjectReference Include="..\MyRhSystem.Domain\MyRhSystem.Domain.csproj" />
-      <ProjectReference Include="..\MyRhSystem.Infrastructure\MyRhSystem.Infrastructure.csproj" />
-      <ProjectReference Include="..\MyRhSystem.UI.Shared\MyRhSystem.UI.Shared.csproj" />
+      <ProjectReference Include="..\MyRhSystem.Contracts\MyRhSystem.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

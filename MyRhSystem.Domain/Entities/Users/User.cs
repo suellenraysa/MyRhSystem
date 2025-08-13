@@ -17,6 +17,7 @@ public class User
     [Column("email")]
     public string? Email { get; set; }
 
+
     [Column("password")]
     public string? Password { get; set; }
 

@@ -1,17 +1,12 @@
 ﻿@page "/configuracoes"
 @using MyRhSystem.APP.Shared.ViewModels   
-@inject UserViewModel ViewModel 
+@inject UsersViewModel ViewModel 
  
 <h3>Configurações</h3>
 
-<button @onclick="() => ViewModel.SeedCommand.ExecuteAsync(null)">
-    Popular Banco
-</button>
+
 
 @code {
     // Método intermediário para chamar o comando
-    private async Task AsyncSeed()
-    {
-        await ViewModel.SeedCommand.ExecuteAsync(null);
-    }
+   
 }

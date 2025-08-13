@@ -1,45 +1,5 @@
 ﻿@page "/Employees"
 
-@using MyRhSystem.Domain.Entities.Users    
-@using MyRhSystem.Application.Services      
-@inject UserService UserService            
+@using MyRhSystem.APP.Shared.ViewModels
 
-<h3>Usuários</h3>
-
-@if (users == null)
-{
-    <p><em>Carregando...</em></p>
-}
-else if (users.Count == 0)
-{
-    <p>Nenhum usuário encontrado.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr><th>Id</th><th>Nome</th><th>Email</th></tr>
-        </thead>
-        <tbody>
-        @foreach (var u in users)
-        {
-            <tr>
-                <td>@u.Id</td>
-                <td>@u.Nome</td>
-                <td>@u.Email</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
-
-@code {
-    // Use o tipo singular User, não Users
-    private List<User>? users;
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Busca todos do banco via seu serviço
-        users = await UserService.GetAllAsync();
-    }
-}
+<h3>Comece aqui</h3>
