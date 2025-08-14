@@ -1,121 +1,135 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MyRhSystem.Application.Employees;
+using MyRhSystem.APP.Shared.Constants;
 
 namespace MyRhSystem.APP.Components.Pages;
 
-public partial class FuncionariosBase : ComponentBase
+public partial class EmployeesBase : ComponentBase
 {
     [Inject] private IEmployeeService Service { get; set; } = default!;
 
-    // Lista/tabela (leve)
-    protected List<EmployeeDto> Employees { get; set; } = new();
-    protected IEnumerable<EmployeeDto> Filtered { get; set; } = Enumerable.Empty<EmployeeDto>();
-    protected List<string> Departments { get; set; } = new();
+    // ------ Dados do grid/filtro ------
+    protected List<EmployeeDto> Employees { get; private set; } = new();
+    protected IEnumerable<EmployeeDto> Filtered { get; private set; } = Enumerable.Empty<EmployeeDto>();
+    protected List<string> Departments { get; private set; } = new();
+    protected Dictionary<string, int> DeptCounts { get; private set; } = new();
+    protected int TotalCount { get; private set; }
 
-    protected string Search { get; set; } = string.Empty;
-    protected string DeptFilter { get; set; } = string.Empty;
+    private string _search = string.Empty;
+    protected string Search { get => _search; set { _search = value ?? string.Empty; ApplyFilter(); } }
 
-    // Modal
-    protected bool ShowForm { get; set; }
-    protected bool IsViewOnly { get; set; }
-    protected string FormTitle { get; set; } = string.Empty;
+    private string _deptFilter = string.Empty;
+    protected string DeptFilter { get => _deptFilter; set { _deptFilter = value ?? string.Empty; ApplyFilter(); } }
 
-    // Modelo detalhado para ver/editar/criar
-    protected EmployeeDetailsDto Details { get; set; } = new();
+    // ------ Modal/Form ------
+    protected bool ShowForm { get; private set; }
+    protected bool IsViewOnly { get; private set; }
+    protected string FormTitle { get; private set; } = string.Empty;
+    protected EmployeeDetailsDto Details { get; private set; } = new();
+    protected int ActiveTab { get; private set; }
 
-    protected bool ShowConfirmDelete { get; set; }
+    // ------ Confirmação de exclusão ------
+    protected bool ShowConfirmDelete { get; private set; }
 
-    // Contagens
-    protected int TotalCount { get; set; }
-    protected Dictionary<string, int> DeptCounts { get; set; } = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await ReloadAsync();
-    }
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
 
     private async Task ReloadAsync()
     {
         Employees = (await Service.GetAllAsync()).ToList();
+        BuildDepartmentsAndCounts();
+        ApplyFilter();
+    }
 
+    private void BuildDepartmentsAndCounts()
+    {
         Departments = Employees
-            .Select(x => x.Departamento)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Distinct()
-            .OrderBy(x => x)
+            .Select(e => e.Departamento)
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(s => s)
             .ToList();
 
         DeptCounts = Employees
-            .GroupBy(e => e.Departamento ?? "")
-            .ToDictionary(g => g.Key, g => g.Count());
-
-        ApplyFilter();
-        StateHasChanged();
+            .GroupBy(e => e.Departamento ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
     }
 
     protected void ApplyFilter()
     {
+        var term = Search?.Trim();
         Filtered = Employees.Where(e =>
-            (string.IsNullOrWhiteSpace(Search)
-                || e.Nome.Contains(Search, StringComparison.InvariantCultureIgnoreCase)
-                || e.Email.Contains(Search, StringComparison.InvariantCultureIgnoreCase)
-                || e.Cargo.Contains(Search, StringComparison.InvariantCultureIgnoreCase))
-            && (string.IsNullOrWhiteSpace(DeptFilter) || e.Departamento == DeptFilter));
+            (string.IsNullOrEmpty(term) ||
+             ContainsCI(e.Nome, term) ||
+             ContainsCI(e.Email, term) ||
+             ContainsCI(e.Cargo, term))
+            && (string.IsNullOrWhiteSpace(DeptFilter) ||
+                string.Equals(e.Departamento, DeptFilter, StringComparison.OrdinalIgnoreCase)));
 
         TotalCount = Filtered.Count();
     }
 
-    // Actions
+    private static bool ContainsCI(string? source, string value) =>
+        source?.Contains(value, StringComparison.OrdinalIgnoreCase) == true;
+
+    // ------ Abrir/fechar formulário ------
     protected void NewEmployee()
     {
-        Details = new EmployeeDetailsDto
-        {
-            Contratacao = DateTime.Today,
-            UF = "SP",
-            Ativo = true
-        };
-        IsViewOnly = false;
-        FormTitle = "Novo Funcionário";
-        ShowForm = true;
+        Details = CreateDefaultDetails();
+        OpenForm("Novo Funcionário", viewOnly: false);
     }
 
-    protected void View(EmployeeDto f)
+    protected Task EditAsync(EmployeeDto f) => OpenFromExistingAsync(f, "Editar Funcionário", viewOnly: false);
+    protected Task ViewAsync(EmployeeDto f) => OpenFromExistingAsync(f, "Detalhes do Funcionário", viewOnly: true);
+
+    private async Task OpenFromExistingAsync(EmployeeDto? f, string title, bool viewOnly)
     {
-        Details = ToDetails(f);
-        IsViewOnly = true;
-        FormTitle = "Detalhes do Funcionário";
-        ShowForm = true;
+        if (f is null) return;
+        Details = await Service.GetDetailsAsync(f.Id) ?? new EmployeeDetailsDto { Id = f.Id };
+        OpenForm(title, viewOnly);
     }
 
-    protected void Edit(EmployeeDto f)
+    private void OpenForm(string title, bool viewOnly)
     {
-        Details = ToDetails(f);
-        IsViewOnly = false;
-        FormTitle = "Editar Funcionário";
+        FormTitle = title;
+        IsViewOnly = viewOnly;
+        ActiveTab = 0;
         ShowForm = true;
     }
 
     protected void CloseForm() => ShowForm = false;
 
-    protected async Task SaveAsync()
+    private static EmployeeDetailsDto CreateDefaultDetails() => new()
     {
-        // Se o seu service já tem Create/Update com Details, use-os:
-        if (Details.Id == Guid.Empty)
-            await Service.CreateAsync(Details);   // overload para EmployeeDetailsDto
-        else
-            await Service.UpdateAsync(Details);   // overload para EmployeeDetailsDto
+        Ativo = true,
+        UF = "SP",
+        TipoContrato = AppDefaults.WorkRegime.FirstOrDefault() ?? "CLT",
+        JornadaHoras = 40,
+        Admissao = DateTime.Today,
+        HorarioEntrada = new TimeOnly(8, 0),
+        HorarioSaida = new TimeOnly(17, 0),
+        Beneficios = Array.Empty<string>(),
+        Dependentes = new()
+    };
 
-        // Caso ainda não tenha overloads, remapeie:
-        // var dto = ToSummary(Details);
-        // if (dto.Id == Guid.Empty) await Service.CreateAsync(dto); else await Service.UpdateAsync(dto);
+    // ------ Persistência (chamado pelo <EmployeeForm/>) ------
+    protected async Task HandleSave()
+    {
+        if (Details is null) return;
+
+        if (Details.Id == Guid.Empty)
+            Details.Id = await Service.CreateAsync(Details);
+        else
+            await Service.UpdateAsync(Details);
 
         ShowForm = false;
         await ReloadAsync();
     }
 
+    // ------ Exclusão ------
     protected void ConfirmDelete(EmployeeDto f)
     {
-        Details = ToDetails(f);
+        if (f is null) return;
+        Details = new EmployeeDetailsDto { Id = f.Id, Nome = f.Nome };
         ShowConfirmDelete = true;
     }
 
@@ -123,48 +137,38 @@ public partial class FuncionariosBase : ComponentBase
 
     protected async Task DeleteAsync()
     {
+        if (Details.Id == Guid.Empty) return;
         await Service.DeleteAsync(Details.Id);
         ShowConfirmDelete = false;
         await ReloadAsync();
     }
 
-    // Mapeamentos básicos (resumo <-> detalhes)
-    private static EmployeeDetailsDto ToDetails(EmployeeDto e) => new()
-    {
-        Id = e.Id,
-        Nome = e.Nome,
-        Sobrenome = e.Sobrenome,          
-        Cargo = e.Cargo,
-        Departamento = e.Departamento,
-        Email = e.Email,
-        Telefone = e.Telefone,
-        Cidade = e.Cidade,
-        UF = e.UF,
-        Contratacao = e.Contratacao,
-        Salario = e.Salario,
-        Ativo = e.Ativo,
-        Logradouro = e.Endereco, 
-        Bairro = e.Bairro,
-        Cep = e.CEP
-    };
-
-    //private static EmployeeDto ToSummary(EmployeeDetailsDto d) => new()
-    //{
-    //    Id = d.Id,
-    //    Nome = d.Nome,
-    //    Cargo = d.Cargo,
-    //    Departamento = d.Departamento,
-    //    Email = d.Email,
-    //    Telefone = d.Telefone,
-    //    Cidade = d.Cidade,
-    //    UF = d.UF,
-    //    Contratacao = d.Contratacao ?? DateTime.Today,
-    //    Salario = d.Salario,
-    //    Ativo = d.Ativo,
-
-    //    // Se o seu dto de lista tiver estes campos:
-    //    Endereco = d.Logradouro,
-    //    Bairro = d.Bairro,
-    //    CEP = d.Cep
-    //};
+    // ------ Util ------
+    protected void ClearDept() => DeptFilter = string.Empty;
+    protected void SelectDept(string key) => DeptFilter = key;
+    protected void OnTab0() => ActiveTab = 0;
+    protected void OnTab1() => ActiveTab = 1;
+    protected void OnTab2() => ActiveTab = 2;
+    protected void OnTab3() => ActiveTab = 3;
+    protected void OnTab4() => ActiveTab = 4;
+    protected void OnTab5() => ActiveTab = 5;
+    protected void OnTab6() => ActiveTab = 6;
 }
+
+    
+    
+    
+    //protected async Task HandleSave()
+    //{
+    //    if (Details is null) return;
+
+    //    // Persistência
+    //    if (Details.Id == Guid.Empty)
+    //        Details.Id = await Service.CreateAsync(Details);
+    //    else
+    //        await Service.UpdateAsync(Details);
+
+    //    // Fecha modal e recarrega lista
+    //    ShowForm = false;
+    //    await ReloadAsync();
+    //}

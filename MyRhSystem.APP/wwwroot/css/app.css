@@ -609,3 +609,176 @@ h1:focus {
     height: 44px;
     border-radius: 10px;
 }
+
+/* ===== Employees (mock) – ajustes finos ===== */
+.employees-page .input-group-text,
+.employees-page .form-control,
+.employees-page .form-select {
+    height: 44px;
+    border-radius: 10px;
+}
+
+    .employees-page table.table th,
+    .employees-page table.table td {
+        padding-top: var(--row-pad-y);
+        padding-bottom: var(--row-pad-y);
+        vertical-align: middle;
+    }
+
+.employees-page .table > :not(caption) > * > * {
+    border-color: var(--border-01);
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f5ee;
+    color: #1e8e5a;
+    font-weight: 700;
+}
+
+.modal-backdrop2 {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 1040;
+}
+
+.modal2 {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: min(680px,94vw);
+    background: #fff;
+    border-radius: 14px;
+    z-index: 1050;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    overflow: hidden;
+}
+
+.btn-new {
+    height: 44px;
+    border-radius: 10px;
+}
+
+/* inputs de hora/minuto mais compactos e centrados */
+.time-input {
+    width: 72px; /* ajuste fino do tamanho */
+    text-align: center;
+    padding: .375rem .5rem;
+}
+
+/* separador “:” com espaçamento agradável */
+.time-sep {
+    display: inline-block;
+    min-width: 8px;
+    text-align: center;
+    opacity: .7;
+}
+
+/* quando empilhar no mobile, os grupos ocupam a linha toda */
+@media (max-width: 767.98px) {
+    .time-group {
+        width: 100%;
+    }
+}
+
+/* ====== Tema verde (mesmo tom do avatar/menu) ====== */
+:root {
+    --brand-green: #1e8e5a; /* texto ícones/ativo */
+    --brand-green-weak: #e8f5ee; /* fundo clarinho */
+    --focus-outer: #1e8e5a; /* anel de foco verde (era azul) */
+}
+
+/* Nav pills (abas do modal) */
+.nav-pills .nav-link {
+    color: var(--brand-green);
+    font-weight: 600;
+    border-radius: .6rem;
+}
+
+    .nav-pills .nav-link:hover {
+        background: rgba(30,142,90,.08);
+        color: var(--brand-green);
+    }
+
+    .nav-pills .nav-link.active {
+        background: var(--brand-green);
+        color: #fff;
+    }
+
+/* Botões “outline primary” – mapeia para verde */
+.btn-outline-primary {
+    color: var(--brand-green);
+    border-color: var(--brand-green);
+}
+
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus {
+        background: var(--brand-green-weak);
+        color: var(--brand-green);
+        border-color: var(--brand-green);
+    }
+
+/* Check / radio marcados em verde */
+.form-check-input:checked {
+    background-color: var(--brand-green);
+    border-color: var(--brand-green);
+}
+
+/* Badge de departamento – verde clarinho */
+.badge-dept {
+    background: var(--brand-green-weak);
+    color: var(--brand-green);
+}
+
+/* Foco unificado (inputs/botões) */
+.btn:focus,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem #fff, 0 0 0 .25rem var(--focus-outer);
+    border-color: var(--brand-green);
+}
+
+/* Inputs de hora/minuto inline (Contrato) */
+.time-row {
+    gap: 1rem;
+}
+
+.time-group {
+    gap: .5rem;
+    flex-wrap: nowrap;
+}
+
+.time-input {
+    width: 90px; /* aumentei um pouco para não “cortar” número */
+    text-align: center;
+/*    padding: .375rem .5rem;*/
+}
+
+.time-sep {
+/*    display: inline-block;*/
+    min-width: 10px;
+    text-align: center;
+    opacity: .7;
+}
+@media (max-width: 767.98px) {
+    .time-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Espaçamento consistente do label acima dos campos */
+.form-label {
+    font-weight: 600;
+    color: #1f2937; /* igual aos demais títulos */
+    margin-bottom: .35rem;
+}
+

@@ -29,7 +29,8 @@ namespace MyRhSystem.APP
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

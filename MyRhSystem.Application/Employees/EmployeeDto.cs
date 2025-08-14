@@ -12,6 +12,9 @@ public class EmployeeDto
     [Required, StringLength(80)]
     public string Sobrenome { get; set; } = string.Empty;
 
+    [DataType(DataType.Date)]
+    public DateTime? DataNascimento { get; set; } = DateTime.Today;
+
     [Required, StringLength(80)]
     public string Cargo { get; set; } = string.Empty;
 
@@ -24,10 +27,12 @@ public class EmployeeDto
     [Required, StringLength(20)]
     public string Telefone { get; set; } = string.Empty;
     [Required, StringLength(20)]
-    public string CEP { get; set; } = string.Empty;
+    public string Cep { get; set; } = string.Empty;
 
     [Required, StringLength(80)]
     public string Endereco { get; set; } = string.Empty;
+    [Required, StringLength(10)]
+    public string Numero { get; set; } = string.Empty;
     [Required, StringLength(30)]
     public string Bairro { get; set; } = string.Empty;
 
@@ -35,7 +40,7 @@ public class EmployeeDto
     public string Cidade { get; set; } = string.Empty;
 
     [Required, StringLength(2, MinimumLength = 2)]
-    public string UF { get; set; } = "SP";
+    public string? UF { get; set; } 
 
     [DataType(DataType.Date)]
     public DateTime? Contratacao { get; set; } = DateTime.Today;

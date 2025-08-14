@@ -1,0 +1,43 @@
+﻿@using System.Linq.Expressions
+
+<input type="time"
+       id="@Id"
+       name="@Name"
+       class="@Class"
+       value="@Current"
+       @onchange="OnChange"
+       min="@Min"
+       max="@Max"
+       step="@StepStr"
+       disabled="@Disabled"
+       autocomplete="off" />
+
+@code {
+    // Bind
+    [Parameter] public TimeOnly? Value { get; set; }
+    [Parameter] public EventCallback<TimeOnly?> ValueChanged { get; set; }
+    [Parameter] public Expression<Func<TimeOnly?>>? ValueExpression { get; set; }
+
+    // Aparência / comportamento
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Min { get; set; }
+    [Parameter] public string? Max { get; set; }
+    [Parameter] public int? Step { get; set; } = 60; // segundos
+
+    // Identificação (evita warnings e o erro de atributos inválidos)
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Name { get; set; }
+
+    string Current => Value?.ToString("HH\\:mm") ?? string.Empty;
+    string StepStr => (Step ?? 60).ToString();
+
+    async Task OnChange(ChangeEventArgs e)
+    {
+        var s = e?.Value?.ToString() ?? "";
+        if (TimeOnly.TryParseExact(s, "HH\\:mm", out var t))
+            await ValueChanged.InvokeAsync(t);
+        else
+            await ValueChanged.InvokeAsync(null);
+    }
+}

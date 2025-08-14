@@ -2,9 +2,14 @@
 
 public interface IEmployeeService
 {
-    Task<IReadOnlyList<EmployeeDto>> GetAllAsync(CancellationToken ct = default);
-    Task<EmployeeDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task<EmployeeDto> CreateAsync(EmployeeDto dto, CancellationToken ct = default);
-    Task<EmployeeDto> UpdateAsync(EmployeeDto dto, CancellationToken ct = default);
-    Task DeleteAsync(Guid id, CancellationToken ct = default);
+    // Grid
+    Task<IEnumerable<EmployeeDto>> GetAllAsync();
+
+    // Detalhes/edição
+    Task<EmployeeDetailsDto?> GetDetailsAsync(Guid id);
+
+    // Persistência
+    Task<Guid> CreateAsync(EmployeeDetailsDto dto);
+    Task UpdateAsync(EmployeeDetailsDto dto);
+    Task DeleteAsync(Guid id);
 }
