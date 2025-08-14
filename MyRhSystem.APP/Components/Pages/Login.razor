@@ -1,0 +1,61 @@
+﻿@page "/login"
+@using System.ComponentModel
+@inject MyRhSystem.APP.Shared.ViewModels.LoginViewModel Vm
+@implements IDisposable
+
+<div class="container mt-5" style="max-width:480px">
+    <h3 class="mb-3">Entrar</h3>
+
+    @if (Vm.IsLoading)
+    {
+        <p><em>Carregando...</em></p>
+    }
+    else if (!Vm.HasAnyUser)
+    {
+        <div class="alert alert-info">
+            Nenhum usuário cadastrado ainda.
+        </div>
+        <button class="btn btn-primary w-100" @onclick="Vm.GoToRegister">
+            Criar primeiro usuário
+        </button>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Vm.Error))
+        {
+            <div class="alert alert-danger">@Vm.Error</div>
+        }
+
+        <EditForm OnValidSubmit="Vm.LoginAsync">
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <InputText class="form-control" @bind-Value="Vm.Email" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <InputText type="password" class="form-control" @bind-Value="Vm.Password" />
+            </div>
+
+            <button class="btn btn-primary w-100" type="submit" disabled="@Vm.IsLoading">
+                @(Vm.IsLoading ? "Entrando..." : "Entrar")
+            </button>
+
+            <div class="text-center mt-3">
+                <a href="javascript:void(0)" @onclick="Vm.GoToRegister">Criar conta</a>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        Vm.PropertyChanged += OnVmChanged;
+        await Vm.InitializeAsync();
+    }
+
+    void OnVmChanged(object? s, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Vm.PropertyChanged -= OnVmChanged;
+}
