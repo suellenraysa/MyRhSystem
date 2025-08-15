@@ -52,7 +52,8 @@
 </EditForm>
 
 @code {
-    [Parameter] public int? Id { get; set; }
+    [Parameter] 
+    public int? Id { get; set; }
 
     // injete a VM via atributo (evita o bug do @inject que você teve)
     [Inject] public MyRhSystem.APP.ViewModels.UserEditViewModel Vm { get; set; } = default!;

@@ -24,40 +24,41 @@ namespace MyRhSystem.APP
             builder.Logging.AddDebug();
 #endif
 
+           // =========================
+            // Backend base URL por plataforma (porta fixa 7006)
             // =========================
-            // Backend base URL por plataforma
-            // =========================
+            string BackendBase;
 #if WINDOWS
-            const string BackendBase = "https://localhost:7006/";
+            BackendBase = "https://localhost:7006/";
 #elif ANDROID
-            // Emulador Android acessa a máquina host por 10.0.2.2
-            const string BackendBase = "https://10.0.2.2:7006/";
+            // Emulador usa 10.0.2.2; dispositivo físico usa o IP do seu PC (192.168.1.23 no seu caso)
+            BackendBase = DeviceInfo.DeviceType == DeviceType.Virtual
+                ? "https://10.0.2.2:7006/"
+                : "https://192.168.2.29:7006/";
 #elif IOS
-            // Use o IP da sua máquina (se rodando no simulador/devices)
-            // Ex.: "https://192.168.0.10:7006/"
-            const string BackendBase = "https://192.168.0.10:7006/";
+            BackendBase = "https://192.168.0.10:7006/";
 #else
-            const string BackendBase = "https://localhost:7006/";
+            BackendBase = "https://localhost:7006/";
 #endif
 
             // Handler que aceita o certificado de dev (apenas em DEBUG)
-            HttpMessageHandler DevHandlerFactory()
+            static HttpMessageHandler DevHandlerFactory()
             {
+                var h = new HttpClientHandler();
 #if DEBUG
-                return new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (msg, cert, chain, errors) => true
-                };
-#else
-                return new HttpClientHandler();
+                h.ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 #endif
+                return h;
             }
+
+
 
             // =========================
             // HTTP CLIENTS TIPADOS
             // =========================
 
-          
+
             builder.Services.AddHttpClient<UsersApiService>(c =>
             {
                 c.BaseAddress = new Uri(BackendBase);

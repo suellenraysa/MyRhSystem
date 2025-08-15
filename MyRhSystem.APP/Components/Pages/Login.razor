@@ -1,61 +1,116 @@
-﻿@page "/login"
-@using System.ComponentModel
-@inject MyRhSystem.APP.Shared.ViewModels.LoginViewModel Vm
-@implements IDisposable
+﻿@page "/"
+@page "/login"
+@layout Layout.LoginLayout
+@inject LoginViewModel Vm
+@inject NavigationManager Nav
 
-<div class="container mt-5" style="max-width:480px">
-    <h3 class="mb-3">Entrar</h3>
 
-    @if (Vm.IsLoading)
-    {
-        <p><em>Carregando...</em></p>
-    }
-    else if (!Vm.HasAnyUser)
-    {
-        <div class="alert alert-info">
-            Nenhum usuário cadastrado ainda.
-        </div>
-        <button class="btn btn-primary w-100" @onclick="Vm.GoToRegister">
-            Criar primeiro usuário
-        </button>
-    }
-    else
-    {
-        @if (!string.IsNullOrEmpty(Vm.Error))
+<ErrorBoundary>
+    <ChildContent>
+        @if (Vm.IsLoading)
         {
-            <div class="alert alert-danger">@Vm.Error</div>
+            <p><em>Carregando…</em></p>
         }
+        else
+        {
+            @if (!string.IsNullOrEmpty(Vm.Error))
+            {
+                <div class="alert alert-danger">@Vm.Error</div>
+            }
 
-        <EditForm OnValidSubmit="Vm.LoginAsync">
-            <div class="mb-3">
-                <label class="form-label">E-mail</label>
-                <InputText class="form-control" @bind-Value="Vm.Email" />
+            <EditForm Model="Vm" OnValidSubmit="Vm.LoginAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <section class="min-vh-100 d-flex align-items-center justify-content-center login-bg">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                        <!-- Cabeçalho do card -->
+                        <div class="p-4 p-md-5 bg-primary-login text-white">
+                            <h2 class="h3 mb-1 fw-semibold">Bem-vindo(a)</h2>
+                            <p class="mb-0 text-white-50">Entre com suas credenciais para continuar</p>
+                        </div>
+
+                        <!-- Corpo do card -->
+                        <div class="card-body p-4 p-md-5">
+                            @* Mensagem de erro (se houver) *@
+                            @if (!string.IsNullOrEmpty(Vm.Error))
+                            {
+                                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    <div>@Vm.Error</div>
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <label class="form-label" for="email">E-mail</label>
+                                <InputText id="email"
+                                           class="form-control form-control-lg"
+                                           @bind-Value="Vm.Email"
+                                           autocomplete="username"
+                                           />
+                                <ValidationMessage For="@(() => Vm.Email)" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label" for="password">Senha</label>
+                                <InputText id="password"
+                                           type="password"
+                                           class="form-control form-control-lg"
+                                           @bind-Value="Vm.Password"
+                                           autocomplete="current-password"
+                                           />
+                                <ValidationMessage For="@(() => Vm.Password)" />
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">Lembrar-me</label>
+                                </div>
+                                <a class="text-decoration-none small" href="/recuperar-senha">Esqueci minha senha</a>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit"
+                                        class="btn btn-primary btn-lg"
+                                        disabled="@Vm.IsLoading">
+                                    @if (Vm.IsLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    }
+                                    Entrar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Rodapé do card -->
+                        <div class="card-footer bg-light py-3 text-center">
+                            <span class="text-muted me-1">Ainda não tem conta?</span>
+                            <a class="fw-semibold text-decoration-none" href="@Vm.GoToRegister">Criar conta</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label class="form-label">Senha</label>
-                <InputText type="password" class="form-control" @bind-Value="Vm.Password" />
-            </div>
-
-            <button class="btn btn-primary w-100" type="submit" disabled="@Vm.IsLoading">
-                @(Vm.IsLoading ? "Entrando..." : "Entrar")
-            </button>
-
-            <div class="text-center mt-3">
-                <a href="javascript:void(0)" @onclick="Vm.GoToRegister">Criar conta</a>
-            </div>
-        </EditForm>
-    }
-</div>
+        </div>
+    </section>
+</EditForm>
+        }
+    </ChildContent>
+    <ErrorContent>
+        <div class="alert alert-danger">
+            Ocorreu um erro inesperado na tela de login.
+            <button class="btn btn-link p-0" @onclick="() => Vm.InitializeAsync()">Tentar novamente</button>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
     protected override async Task OnInitializedAsync()
     {
-        Vm.PropertyChanged += OnVmChanged;
+        Vm.PropertyChanged += (_, __) => InvokeAsync(StateHasChanged);
         await Vm.InitializeAsync();
     }
-
-    void OnVmChanged(object? s, PropertyChangedEventArgs e) => InvokeAsync(StateHasChanged);
-
-    public void Dispose() => Vm.PropertyChanged -= OnVmChanged;
 }
