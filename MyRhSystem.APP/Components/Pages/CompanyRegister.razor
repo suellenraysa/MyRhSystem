@@ -1,44 +1,123 @@
 ﻿@page "/company-registration"
-@using MyRhSystem.APP.Shared.Models
-@using MyRhSystem.APP.Components.Sections
-@inherits CompanyRegisterBase
-
-<PageTitle>Cadastro de Empresa</PageTitle>
-<div class="page-background">
-    <div class="form-container">
-        <div class="company-register-wrapper">
-            <div class="company-register-header text-center">
-                <div class="icon-box mb-3">
-                    <i class="bi bi-buildings"></i>
-                </div>
-                <h2>Cadastro de Empresa</h2>
-                <p class="text-muted">Registre sua empresa e comece a crescer</p>
-            </div>
-
-            <EditForm Model="@Model" OnValidSubmit="SalvarEmpresa">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-
-                <CompanyBasicInfo Model="Model.BasicInfo" />
-                <CompanyAddress Model="Model.Address" />
-                <BusinessInfo Model="Model.BusinessInfo" />
-                <LegalRepresentative Model="Model.LegalRepresentative" />
-                <BankingInfo Model="Model.BankingInfo" />
-
-                <div class="text-center mt-4">
-                    <button class="btn btn-success w-100" type="submit" disabled="@IsLoading">
-                        @if (IsLoading)
-                        {
-                            <span class="spinner-border spinner-border-sm"></span>
-                            <span class="ms-2">Salvando...</span>
-                        }
-                        else
-                        {
-                            <i class="bi bi-check-circle"></i> <span class="ms-2">Cadastrar Empresa</span>
-                        }
-                    </button>
-                </div>
-            </EditForm>
-        </div>
+<div class="container my-4">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-building-check text-success fs-4"></i>
+        <h3 class="m-0 fw-bold">Cadastro de Empresa (Pré-visualização)</h3>
     </div>
+
+    <form class="needs-validation" novalidate>
+        <!-- Informações Básicas -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h5 class="mb-3">
+                    <i class="bi bi-info-circle-fill me-2 text-success"></i>
+                    Informações Básicas
+                </h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Razão Social *</label>
+                    <input class="form-control" type="text" value="Empresa Exemplo LTDA" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">CNPJ *</label>
+                    <input class="form-control" type="text" value="00.000.000/0000-00" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Telefone *</label>
+                    <input class="form-control" type="text" value="(11) 99999-9999" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Email *</label>
+                    <input class="form-control" type="email" value="contato@empresa.com.br" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endereço da Empresa -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h5 class="mb-3">
+                    <i class="bi bi-geo-alt-fill text-success me-2"></i>
+                    Endereço da Empresa
+                </h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Endereço *</label>
+                    <input class="form-control" type="text" value="Av. Paulista, 1000 - Bela Vista" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Cidade *</label>
+                        <input class="form-control" type="text" value="São Paulo" />
+                        <div class="text-danger small">Mensagem de validação</div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-semibold">Estado *</label>
+                        <input class="form-control" type="text" value="SP" />
+                        <div class="text-danger small">Mensagem de validação</div>
+                    </div>
+
+                    <div class="col-md-3 mb-0">
+                        <label class="form-label fw-semibold">CEP *</label>
+                        <input class="form-control" type="text" value="01310-100" />
+                        <div class="text-danger small">Mensagem de validação</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Representante Legal -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h5 class="mb-3">
+                    <i class="bi bi-person-badge-fill text-success me-2"></i>
+                    Representante Legal
+                </h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nome Completo *</label>
+                    <input class="form-control" type="text" value="João da Silva" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">CPF *</label>
+                    <input class="form-control" type="text" value="123.456.789-00" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Telefone *</label>
+                    <input class="form-control" type="text" value="(11) 91234-5678" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">E-mail *</label>
+                    <input class="form-control" type="email" value="joao.silva@empresa.com.br" />
+                    <div class="text-danger small">Mensagem de validação</div>
+                </div>
+            </div>
+        </div>      
+
+        <!-- Ações -->
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-light">
+                <i class="bi bi-x-circle me-1"></i>Cancelar
+            </button>
+            <button type="button" class="btn btn-success">
+                <i class="bi bi-check2-circle me-1"></i>Salvar (mock)
+            </button>
+        </div>
+    </form>
 </div>

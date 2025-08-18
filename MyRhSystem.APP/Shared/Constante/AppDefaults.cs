@@ -29,7 +29,7 @@ public static class AppDefaults
 
     public static readonly string[] WorkRegime = new[]
     {
-        "CLT", "PJ", "Estágio"
+        "CLT", "PJ", "Estágio", "Freelancer", "Temporário", "trainee", "Outro"
     };
 
     public static readonly string[] States = new[]

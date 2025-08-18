@@ -1,4 +1,9 @@
-﻿using MyRhSystem.Application.Employees;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MyRhSystem.Application.Employees;
+using MyRhSystem.Contracts.Employees;
 
 namespace MyRhSystem.Infrastructure.Employees;
 
@@ -18,19 +23,22 @@ public class EmployeeService : IEmployeeService
                 Email="joao.silva@techcorp.com", Telefone="(11) 99999-1111",
                 Cidade="São Paulo", UF="SP", Departamento="Tecnologia",
                 Cargo="Desenvolvedor Sênior", Funcao="Dev",
-                Contratacao = new DateTime(2023,1,14), Admissao = new DateTime(2023,1,14), DataExperiencia = new DateTime(2023,1,14), DataExperiencia1 = new DateTime(2023,7,14),
+                Contratacao = new DateTime(2023,1,14),
+                Admissao = new DateTime(2023,1,14),
+                DataExperiencia = new DateTime(2023,1,14),
+                DataExperiencia1 = new DateTime(2023,7,14),
                 Salario = 8500m, Ativo = true,
                 Endereco="Rua A", Numero="100", Bairro="Centro", Cep="01000-000",
                 GrauInstrucao="Superior completo",
                 Beneficios = new [] { "VR", "VT", "Plano de Saúde" },
                 Dependentes = new()
                 {
-                    new DependenteDto { Nome="Pedro Silva", GrauParentesco="Filho", Nascimento=new DateTime(2015,5,1)}
+                    new DependenteDto { Id = Guid.NewGuid(), Nome="Pedro Silva", GrauParentesco="Filho", Nascimento=new DateTime(2015,5,1) }
                 },
                 Contatos = new()
                 {
-                    new ContatoDto { Nome="Maria Silva", GrauParentesco="Esposa", Telefone="(11) 98888-7777"}
-                }                
+                    new ContatoDto { Id = Guid.NewGuid(), Nome="Maria Silva", GrauParentesco="Esposa", Telefone="(11) 98888-7777" }
+                }
             },
             new EmployeeDetailsDto
             {
@@ -38,15 +46,20 @@ public class EmployeeService : IEmployeeService
                 Email="maria.santos@techcorp.com", Telefone="(11) 99999-2222",
                 Cidade="São Paulo", UF="SP", Departamento="Vendas",
                 Cargo="Gerente de Vendas", Funcao="Gestão",
-                Contratacao = new DateTime(2022,8,19), Admissao = new DateTime(2022,8,19), DataExperiencia = new DateTime(2023,1,14), DataExperiencia1 = new DateTime(2023,7,14),
+                Contratacao = new DateTime(2022,8,19),
+                Admissao = new DateTime(2022,8,19),
+                DataExperiencia = new DateTime(2023,1,14),
+                DataExperiencia1 = new DateTime(2023,7,14),
                 Salario = 12000m, Ativo = true
             }
         });
     }
 
-    public Task<IEnumerable<EmployeeDto>> GetAllAsync()
-        => Task.FromResult(_store.Select(ToListDto));
+    // Listagem: agora devolve DETAILS (cópias) para grid
+    public Task<IEnumerable<EmployeeDetailsDto>> GetAllAsync()
+        => Task.FromResult(_store.Select(e => e.Clone()));
 
+    // Detalhes para o formulário (também como cópia)
     public Task<EmployeeDetailsDto?> GetDetailsAsync(Guid id)
         => Task.FromResult(_store.FirstOrDefault(x => x.Id == id)?.Clone());
 
@@ -69,22 +82,6 @@ public class EmployeeService : IEmployeeService
         _store.RemoveAll(x => x.Id == id);
         return Task.CompletedTask;
     }
-
-    private static EmployeeDto ToListDto(EmployeeDetailsDto x) => new()
-    {
-        Id = x.Id,
-        Nome = x.Nome,
-        Sobrenome = x.Sobrenome,
-        Email = x.Email,
-        Telefone = x.Telefone,
-        Cidade = x.Cidade,
-        UF = x.UF,
-        Departamento = x.Departamento,
-        Cargo = x.Cargo,
-        Contratacao = x.Contratacao,
-        Salario = x.Salario,
-        Ativo = x.Ativo
-    };
 }
 
 internal static class EmployeeCloneExtensions
@@ -93,12 +90,22 @@ internal static class EmployeeCloneExtensions
         => new()
         {
             Id = x.Id,
+
+            // Pessoais
             Nome = x.Nome,
             Sobrenome = x.Sobrenome,
             Email = x.Email,
             Telefone = x.Telefone,
+
+            // Endereço
+            Endereco = x.Endereco,
+            Numero = x.Numero,
+            Bairro = x.Bairro,
             Cidade = x.Cidade,
             UF = x.UF,
+            Cep = x.Cep,
+
+            // Profissional
             Departamento = x.Departamento,
             Cargo = x.Cargo,
             Funcao = x.Funcao,
@@ -106,30 +113,44 @@ internal static class EmployeeCloneExtensions
             HorarioSaida = x.HorarioSaida,
             Contratacao = x.Contratacao,
             Admissao = x.Admissao,
+            DataExperiencia = x.DataExperiencia,
+            DataExperiencia1 = x.DataExperiencia1,
             Salario = x.Salario,
             Ativo = x.Ativo,
-            Endereco = x.Endereco,
-            Numero = x.Numero,
-            Bairro = x.Bairro,
-            Cep = x.Cep,
             GrauInstrucao = x.GrauInstrucao,
-            Beneficios = x.Beneficios.ToArray(),
-            Dependentes = x.Dependentes.Select(d => new DependenteDto
-            {
-                Nome = d.Nome,
-                Nascimento = d.Nascimento,
-                GrauParentesco = d.GrauParentesco
-            }).ToList(),
-            Contatos = x.Contatos.Select(d => new ContatoDto
-            {
-                Nome = d.Nome,
-                Telefone = x.Telefone,
-                GrauParentesco = d.GrauParentesco
-            }).ToList(),            
+
+            // Documentos
             Cpf = x.Cpf,
             Rg = x.Rg,
+            OrgaoEmissor = x.OrgaoEmissor,
+            RgEmissao = x.RgEmissao,
             CtpsNumero = x.CtpsNumero,
             CtpsSerie = x.CtpsSerie,
-            TituloEleitor = x.TituloEleitor
+            TituloEleitor = x.TituloEleitor,
+            Zona = x.Zona,
+            Sessao = x.Sessao,
+
+            // Benefícios e coleções (null-safe)
+            Beneficios = (x.Beneficios ?? Array.Empty<string>()).ToArray(),
+
+            Dependentes = (x.Dependentes ?? new List<DependenteDto>())
+                .Select(d => new DependenteDto
+                {
+                    Id = d.Id,
+                    Nome = d.Nome,
+                    Nascimento = d.Nascimento,
+                    GrauParentesco = d.GrauParentesco
+                })
+                .ToList(),
+
+            Contatos = (x.Contatos ?? new List<ContatoDto>())
+                .Select(c => new ContatoDto
+                {
+                    Id = c.Id,
+                    Nome = c.Nome,
+                    Telefone = c.Telefone, // correção: não usar x.Telefone
+                    GrauParentesco = c.GrauParentesco
+                })
+                .ToList()
         };
 }

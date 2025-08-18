@@ -9,30 +9,31 @@
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Endereço *</label>
-        <InputText class="form-control" @bind-Value="Model.FullAddress" />
-        <ValidationMessage For="@(() => Model.FullAddress)" />
+        <input class="form-control" type="text" value="Av. Paulista, 1000 - Bela Vista" />
+        <div class="text-danger small">Mensagem de validação</div>
     </div>
 
     <div class="row">
         <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Cidade *</label>
-            <InputText class="form-control" @bind-Value="Model.City" />
-            <ValidationMessage For="@(() => Model.City)" />
+            <input class="form-control" type="text" value="São Paulo" />
+            <div class="text-danger small">Mensagem de validação</div>
         </div>
 
         <div class="col-md-3 mb-3">
             <label class="form-label fw-semibold">Estado *</label>
-            <InputText class="form-control" @bind-Value="Model.State" />
-            <ValidationMessage For="@(() => Model.State)" />
+            <input class="form-control" type="text" value="SP" />
+            <div class="text-danger small">Mensagem de validação</div>
         </div>
 
         <div class="col-md-3 mb-3">
             <label class="form-label fw-semibold">CEP *</label>
-            <InputText class="form-control" @bind-Value="Model.ZipCode" />
-            <ValidationMessage For="@(() => Model.ZipCode)" />
+            <input class="form-control" type="text" value="01310-100" />
+            <div class="text-danger small">Mensagem de validação</div>
         </div>
     </div>
 </div>
+
 
 @code {
     [Parameter, EditorRequired]

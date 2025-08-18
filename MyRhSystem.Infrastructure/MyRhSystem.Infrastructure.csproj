@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyRhSystem.Application\MyRhSystem.Application.csproj" />
+    <ProjectReference Include="..\MyRhSystem.Contracts\MyRhSystem.Contracts.csproj" />
     <ProjectReference Include="..\MyRhSystem.Domain\MyRhSystem.Domain.csproj" />
   </ItemGroup>
 
