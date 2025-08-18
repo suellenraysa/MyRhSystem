@@ -26,4 +26,16 @@ public static class AppDefaults
         "R$ 3.001 - R$ 5.000", "R$ 5.001 - R$ 8.000", "R$ 8.001 - R$ 12.000",
         "R$ 12.001 - R$ 20.000", "Acima de R$ 20.000"
     };
+
+    public static readonly string[] WorkRegime = new[]
+    {
+        "CLT", "PJ", "Estágio", "Freelancer", "Temporário", "trainee", "Outro"
+    };
+
+    public static readonly string[] States = new[]
+    {
+        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+        "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+        "RS", "RO", "RR", "SC", "SE", "SP", "TO"
+    };
 }

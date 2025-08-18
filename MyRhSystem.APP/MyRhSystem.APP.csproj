@@ -65,6 +65,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+		<ProjectReference Include="..\MyRhSystem.Application\MyRhSystem.Application.csproj" />
+		<ProjectReference Include="..\MyRhSystem.Infrastructure\MyRhSystem.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

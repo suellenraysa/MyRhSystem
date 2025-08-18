@@ -1,0 +1,155 @@
+﻿@page "/employees"
+@using MyRhSystem.APP.Shared.Constants
+@using MyRhSystem.APP.Components.Pages 
+@using MyRhSystem.Application.Employees
+
+<div class="employees-page">
+    <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-people text-success fs-4"></i>
+            <h3 class="page-title m-0 fw-bold">Funcionários</h3>
+        </div>
+
+        <button id="btn-new-employee"
+                name="btn-new-employee"
+                class="btn btn-success btn-new"
+                @onclick="OpenNewEmployee">
+            <i class="bi bi-plus-lg me-1"></i> Novo Funcionário
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body py-3">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                <div class="input-group" style="max-width: 340px;">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input id="employees-search"
+                           name="employees-search"
+                           class="form-control"
+                           type="search"
+                           placeholder="Buscar funcionários..." />
+                </div>
+
+                <div class="ms-1" style="min-width: 260px;">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-building"></i></span>
+                        <select id="employees-dept" name="employees-dept" class="form-select">
+                            <option value="">Todos os departamentos</option>
+                            <option>Departamento A</option>
+                            <option>Departamento B</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-muted ms-auto me-2">
+                    Total: <strong>0</strong> funcionários
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-2">
+        <button id="btn-filter-all" name="btn-filter-all" class="btn btn-outline-secondary btn-sm active">
+            Todos <span class="badge bg-secondary ms-1">0</span>
+        </button>
+        <button id="btn-filter-dept-a" name="btn-filter-dept-a" class="btn btn-outline-secondary btn-sm">
+            Departamento A <span class="badge bg-secondary ms-1">0</span>
+        </button>
+    </div>
+
+    <div class="alert alert-light border d-flex align-items-center" role="alert">
+        <i class="bi bi-info-circle me-2"></i>
+        Nenhum funcionário encontrado.
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:44px;"></th>
+                    <th>Funcionário</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Departamento</th>
+                    <th>Cargo</th>
+                    <th style="width:140px;" class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="avatar avatar-sm">AB</div>
+                    </td>
+                    <td class="fw-semibold">Fulano da Silva</td>
+                    <td class="text-muted">fulano@exemplo.com</td>
+                    <td class="text-muted">(11) 99999-9999</td>
+                    <td><span class="badge badge-dept">Departamento A</span></td>
+                    <td class="text-muted">Cargo Exemplo</td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Ações">
+                            <button id="btn-view-1" name="btn-view-1" class="btn btn-outline-secondary" title="Visualizar">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button id="btn-edit-1" name="btn-edit-1" class="btn btn-outline-primary" title="Editar" @onclick="() => employeeForm?.OpenEdit(row1)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button id="btn-delete-1" name="btn-delete-1" class="btn btn-outline-danger" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal2 modal2-sm" role="dialog" aria-modal="true" style="display:none;">
+        <div class="modal2-header">
+            <h6 class="m-0">Excluir funcionário</h6>
+            <button id="btn-close-delete" name="btn-close-delete" type="button" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal2-body">
+            Tem certeza que deseja excluir <strong>Fulano</strong>?
+        </div>
+        <div class="d-flex justify-content-end gap-2 p-3 pt-0">
+            <button id="btn-cancel-delete" name="btn-cancel-delete" class="btn btn-light">Cancelar</button>
+            <button id="btn-confirm-delete" name="btn-confirm-delete" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i>Excluir
+            </button>
+        </div>
+    </div>
+
+    <!-- Instância do componente de formulário (modal) -->
+    <EmployeeForm @ref="employeeForm" />
+</div>
+
+@code {
+    private EmployeeForm? employeeForm;
+
+    // Mock do registro da tabela (minimamente preenchido)
+    private readonly EmployeeDetailsDto row1 = new()
+    {
+        Nome = "Fulano",
+        Sobrenome = "da Silva",
+        Email = "fulano@exemplo.com",
+        Telefone = "(11) 99999-9999",
+        Cargo = "Cargo Exemplo",
+        Departamento = "Departamento A",
+        Funcao = "Função Exemplo",
+        Ativo = true,
+        JornadaHoras = 40,
+        UF = "SP",
+        Cidade = "São Paulo",
+        Dependentes = new(),
+        Contatos = new()
+    };
+
+    private void OpenNewEmployee()
+    {
+        // chama método público do componente para abrir o modal em modo "novo"
+        employeeForm?.OpenNew();
+    }
+}

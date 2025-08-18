@@ -10,28 +10,29 @@
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Nome Completo *</label>
-        <InputText class="form-control" @bind-Value="Model.FullName" />
-        <ValidationMessage For="@(() => Model.FullName)" />
+        <input class="form-control" type="text" value="João da Silva" />
+        <div class="text-danger small">Mensagem de validação</div>
     </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">CPF *</label>
-        <InputText class="form-control" @bind-Value="Model.CPF" />
-        <ValidationMessage For="@(() => Model.CPF)" />
+        <input class="form-control" type="text" value="123.456.789-00" />
+        <div class="text-danger small">Mensagem de validação</div>
     </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">Telefone *</label>
-        <InputText class="form-control" @bind-Value="Model.Phone" />
-        <ValidationMessage For="@(() => Model.Phone)" />
+        <input class="form-control" type="text" value="(11) 91234-5678" />
+        <div class="text-danger small">Mensagem de validação</div>
     </div>
 
     <div class="mb-3">
         <label class="form-label fw-semibold">E-mail *</label>
-        <InputText class="form-control" @bind-Value="Model.Email" />
-        <ValidationMessage For="@(() => Model.Email)" />
+        <input class="form-control" type="email" value="joao.silva@empresa.com.br" />
+        <div class="text-danger small">Mensagem de validação</div>
     </div>
 </div>
+
 
 @code {
     [Parameter, EditorRequired]

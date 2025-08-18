@@ -5,6 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\MyRhSystem.Application\MyRhSystem.Application.csproj" />
+	</ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.3" />
@@ -19,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyRhSystem.Application\MyRhSystem.Application.csproj" />
+    <ProjectReference Include="..\MyRhSystem.Contracts\MyRhSystem.Contracts.csproj" />
     <ProjectReference Include="..\MyRhSystem.Domain\MyRhSystem.Domain.csproj" />
   </ItemGroup>
 
