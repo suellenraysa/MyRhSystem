@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MyRhSystem.Domain.Entities.ValueObjects;
+using MyRhSystem.Domain.Entities.Employees;
 
 namespace MyRhSystem.Domain.Entities.Companies;
 
@@ -13,14 +15,17 @@ public class Company
 
     [Column("nome")]
     public string? Nome { get; set; }
+    
+    [Column("address_id")]
+    public int? AddressId { get; set; }
 
-    [Column("address")]
-    public string? Address { get; set; }
+    [ForeignKey(nameof(AddressId))]
+    public Address? Address { get; set; }
 
     [Column("createdAt")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();
-    //public ICollection<Employee> Funcionarios { get; set; } = new List<Employee>();
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>();
 
 }

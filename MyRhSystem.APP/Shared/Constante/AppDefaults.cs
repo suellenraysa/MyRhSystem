@@ -38,4 +38,9 @@ public static class AppDefaults
         "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
         "RS", "RO", "RR", "SC", "SE", "SP", "TO"
     };
+
+    public static readonly string[] Level = new[]
+    {
+        "Júnior", "Pleno", "Sênior", "Especialista", "Coordenador", "Gerente", "Diretor"
+    };
 }
