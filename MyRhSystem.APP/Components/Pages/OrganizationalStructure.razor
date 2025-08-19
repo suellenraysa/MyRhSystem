@@ -1,0 +1,338 @@
+﻿@page "/organizacao"
+@using Microsoft.AspNetCore.Components.Forms
+@using MyRhSystem.Contracts.Departments
+@using MyRhSystem.Contracts.JobRole
+@inherits MyRhSystem.APP.Shared.ViewModels.OrganizationalStructureViewModel
+
+<div class="container-fluid py-3">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-diagram-3-fill text-success fs-4"></i>
+            <h3 class="m-0 fw-bold">Estrutura Organizacional</h3>
+        </div>
+        <div class="d-flex gap-2">
+            <button id="btn-refresh" name="btn-refresh" class="btn btn-light" @onclick="ReloadAsync">
+                <i class="bi bi-arrow-clockwise me-1"></i> Atualizar
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- =============== COLUNA 1: DEPARTAMENTOS =============== -->
+        <div class="col-12 col-md-4 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0">Departamentos</h6>
+                    <button id="btn-new-dept" name="btn-new-dept" class="btn btn-sm btn-success"
+                            title="Novo Departamento" @onclick="OpenDepartmentModalNew">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (Departments.Count == 0)
+                        {
+                            <div class="p-3 text-muted">Nenhum departamento cadastrado.</div>
+                        }
+                        else
+                        {
+                            @foreach (var d in Departments.OrderBy(x => x.Nome))
+                            {
+                                var active = d.Id == SelectedDepartmentId;
+                                <button id="dept-@d.Id" name="dept-@d.Id"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(active ? "active" : "")"
+                                        @onclick="@(() => SelectDepartment(d.Id))">
+                                    <span>@d.Nome</span>
+                                    <span class="d-flex gap-1">
+                                        <button id="btn-edit-dept-@d.Id" name="btn-edit-dept-@d.Id"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="Editar" @onclick="@((_) => OpenDepartmentModalEdit(d))">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button id="btn-del-dept-@d.Id" name="btn-del-dept-@d.Id"
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Excluir" @onclick="@((_) => ConfirmDeleteDepartment(d.Id))">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </span>
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============== COLUNA 2: CARGOS =============== -->
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0">Cargos</h6>
+                    <button id="btn-new-role" name="btn-new-role" class="btn btn-sm btn-success"
+                            title="Novo Cargo" @onclick="OpenRoleModalNew" disabled="@(!SelectedDepartmentId.HasValue)">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (!SelectedDepartmentId.HasValue)
+                    {
+                        <div class="alert alert-light border">Selecione um departamento à esquerda.</div>
+                    }
+                    else
+                    {
+                        var roles = JobRoles.Where(r => r.DepartmentId == SelectedDepartmentId.Value)
+                                            .OrderBy(r => r.Nome)
+                                            .ToList();
+
+                        @if (roles.Count == 0)
+                        {
+                            <div class="alert alert-light border">Nenhum cargo para este departamento.</div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Nível</th>
+                                            <th>Salário Base</th>
+                                            <th>Salário Máximo</th>
+                                            <th class="text-end" style="width:140px;">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var r in roles)
+                                        {
+                                            <tr class="@(r.Id == SelectedRoleId ? "table-active" : null)">
+                                                <td>@r.Nome</td>
+                                                <td>@(Levels.FirstOrDefault(l => l.Id == r.LevelId)?.Nome)</td>
+                                                <td>@r.SalarioBase.ToString("C")</td>
+                                                <td>@(r.SalarioMaximo?.ToString("C") ?? "—")</td>
+                                                <td class="text-end">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button id="btn-role-view-@r.Id" name="btn-role-view-@r.Id"
+                                                                class="btn btn-outline-secondary"
+                                                                title="Selecionar" @onclick="@(() => SelectRole(r.Id))">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button id="btn-role-edit-@r.Id" name="btn-role-edit-@r.Id"
+                                                                class="btn btn-outline-primary"
+                                                                title="Editar" @onclick="@(() => OpenRoleModalEdit(r))">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        <button id="btn-role-del-@r.Id" name="btn-role-del-@r.Id"
+                                                                class="btn btn-outline-danger"
+                                                                title="Excluir" @onclick="@(() => ConfirmDeleteRole(r.Id))">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- =============== COLUNA 3: NÍVEIS =============== -->
+        <div class="col-12 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="m-0">Níveis</h6>
+                    <button id="btn-new-level" name="btn-new-level" class="btn btn-sm btn-success"
+                            title="Novo Nível" @onclick="OpenLevelModalNew">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (Levels.Count == 0)
+                        {
+                            <div class="p-3 text-muted">Nenhum nível cadastrado.</div>
+                        }
+                        else
+                        {
+                            @foreach (var l in Levels.OrderBy(x => x.Ordem).ThenBy(x => x.Nome))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold">@l.Nome</div>
+                                        <small class="text-muted">Ordem: @l.Ordem</small>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <button id="btn-level-edit-@l.Id" name="btn-level-edit-@l.Id"
+                                                class="btn btn-outline-primary" title="Editar"
+                                                @onclick="@(() => OpenLevelModalEdit(l))">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button id="btn-level-del-@l.Id" name="btn-level-del-@l.Id"
+                                                class="btn btn-outline-danger" title="Excluir"
+                                                @onclick="@(() => ConfirmDeleteLevel(l.Id))">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    @if (SelectedRoleId.HasValue)
+                    {
+                        <div class="border-top p-3">
+                            <label for="role-level-bind" class="form-label fw-semibold">Nível do cargo selecionado</label>
+                            <InputSelect id="role-level-bind" name="role-level-bind" class="form-select"
+                                         @bind-Value="SelectedRoleLevelId" @onchange="OnChangeRoleLevel">
+                                @foreach (var lv in Levels.OrderBy(x => x.Ordem))
+                                {
+                                    <option value="@lv.Id">@lv.Nome</option>
+                                }
+                            </InputSelect>
+                            <small class="text-muted">Vincule um nível ao cargo marcado na grade.</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ====================== MODAIS ====================== *@
+
+@* Departamento *@
+@if (ShowDepartmentModal)
+{
+    <div class="modal-backdrop2" @onclick="CloseDepartmentModal"></div>
+    <div class="modal2 modal2-sm" role="dialog" aria-modal="true">
+        <div class="modal2-header">
+            <h6 class="m-0">@DepartmentModalTitle</h6>
+            <button id="btn-close-dept" name="btn-close-dept" type="button" class="btn btn-sm btn-outline-secondary" @onclick="CloseDepartmentModal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal2-body">
+            <EditForm Model="DepartmentEditing" OnValidSubmit="SaveDepartmentAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="dept-name" class="form-label fw-semibold">Nome *</label>
+                    <InputText id="dept-name" name="dept-name" class="form-control" @bind-Value="DepartmentEditing.Nome" />
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button id="btn-dept-cancel" name="btn-dept-cancel" type="button" class="btn btn-light" @onclick="CloseDepartmentModal">Cancelar</button>
+                    <button id="btn-dept-save" name="btn-dept-save" type="submit" class="btn btn-success">Salvar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@* Cargo *@
+@if (ShowRoleModal)
+{
+    <div class="modal-backdrop2" @onclick="CloseRoleModal"></div>
+    <div class="modal2" role="dialog" aria-modal="true">
+        <div class="modal2-header">
+            <h6 class="m-0">@RoleModalTitle</h6>
+            <button id="btn-close-role" name="btn-close-role" type="button" class="btn btn-sm btn-outline-secondary" @onclick="CloseRoleModal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal2-body">
+            <EditForm Model="RoleEditing" OnValidSubmit="SaveRoleAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="role-name" class="form-label fw-semibold">Nome *</label>
+                        <InputText id="role-name" name="role-name" class="form-control" @bind-Value="RoleEditing.Nome" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="role-dept" class="form-label fw-semibold">Departamento *</label>
+                        <InputSelect id="role-dept" name="role-dept" class="form-select" @bind-Value="RoleEditing.DepartmentId">
+                            <option value="">Selecione</option>
+                            @foreach (var d in Departments.OrderBy(x => x.Nome))
+                            {
+                                <option value="@d.Id">@d.Nome</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="role-level" class="form-label fw-semibold">Nível *</label>
+                        <InputSelect id="role-level" name="role-level" class="form-select" @bind-Value="RoleEditing.LevelId">
+                            <option value="">Selecione</option>
+                            @foreach (var lv in Levels.OrderBy(x => x.Ordem))
+                            {
+                                <option value="@lv.Id">@lv.Nome</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="role-salary-base" class="form-label fw-semibold">Salário Base *</label>
+                        <InputNumber id="role-salary-base" name="role-salary-base" class="form-control" @bind-Value="RoleEditing.SalarioBase" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="role-salary-max" class="form-label fw-semibold">Salário Máximo</label>
+                        <InputNumber id="role-salary-max" name="role-salary-max" class="form-control" @bind-Value="RoleEditing.SalarioMaximo" />
+                    </div>
+
+                    <div class="col-12">
+                        <label for="role-req" class="form-label fw-semibold">Requisitos</label>
+                        <InputTextArea id="role-req" name="role-req" class="form-control" rows="2" @bind-Value="RoleEditing.Requisitos" />
+                    </div>
+
+                    <div class="col-12">
+                        <label for="role-resp" class="form-label fw-semibold">Responsabilidades</label>
+                        <InputTextArea id="role-resp" name="role-resp" class="form-control" rows="3" @bind-Value="RoleEditing.Responsabilidades" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <button id="btn-role-cancel" name="btn-role-cancel" type="button" class="btn btn-light" @onclick="CloseRoleModal">Cancelar</button>
+                    <button id="btn-role-save" name="btn-role-save" type="submit" class="btn btn-success">Salvar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@* Nível *@
+@if (ShowLevelModal)
+{
+    <div class="modal-backdrop2" @onclick="CloseLevelModal"></div>
+    <div class="modal2 modal2-sm" role="dialog" aria-modal="true">
+        <div class="modal2-header">
+            <h6 class="m-0">@LevelModalTitle</h6>
+            <button id="btn-close-level" name="btn-close-level" type="button" class="btn btn-sm btn-outline-secondary" @onclick="CloseLevelModal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal2-body">
+            <EditForm Model="LevelEditing" OnValidSubmit="SaveLevelAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="level-name" class="form-label fw-semibold">Nome *</label>
+                    <InputText id="level-name" name="level-name" class="form-control" @bind-Value="LevelEditing.Nome" />
+                </div>
+                <div class="mb-3">
+                    <label for="level-ordem" class="form-label fw-semibold">Ordem</label>
+                    <InputNumber id="level-ordem" name="level-ordem" class="form-control" @bind-Value="LevelEditing.Ordem" />
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button id="btn-level-cancel" name="btn-level-cancel" type="button" class="btn btn-light" @onclick="CloseLevelModal">Cancelar</button>
+                    <button id="btn-level-save" name="btn-level-save" type="submit" class="btn btn-success">Salvar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
