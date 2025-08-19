@@ -1,4 +1,4 @@
-﻿using MyRhSystem.Application.Employees;
+﻿using MyRhSystem.Contracts.Employees;
 
 namespace MyRhSystem.Infrastructure.Employees
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyRhSystem.Application.Employees
+namespace MyRhSystem.Contracts.Employees
 {
     public class EmployeeDetailsDto
     {
@@ -16,10 +16,10 @@ namespace MyRhSystem.Application.Employees
         public string Sobrenome { get; set; } = "";
 
         [Required, StringLength(10)]
-        public string Sexo { get; set; } = "";
+        public string Sexo { get; set; } = "";  // valores via AppDefaults.Gender
 
         [Required]
-        public DateTime DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; }
 
         [StringLength(80), EmailAddress]
         public string? Email { get; set; }
@@ -84,13 +84,13 @@ namespace MyRhSystem.Application.Employees
         public int? JornadaHoras { get; set; }
 
         [Required]
-        public DateTime Admissao { get; set; }
+        public DateTime? Admissao { get; set; }
 
         [Required]
-        public DateTime DataExperiencia { get; set; }
+        public DateTime? DataExperiencia { get; set; }
 
         [Required]
-        public DateTime DataExperiencia1 { get; set; }
+        public DateTime? DataExperiencia1 { get; set; }
 
         public DateTime Contratacao { get; set; }
         public decimal Salario { get; set; }
@@ -101,6 +101,9 @@ namespace MyRhSystem.Application.Employees
 
         [StringLength(10)]
         public string? Numero { get; set; }
+
+        [StringLength(20)]
+        public string? Complemento { get; set; }
 
         [StringLength(100)]
         public string? Bairro { get; set; }

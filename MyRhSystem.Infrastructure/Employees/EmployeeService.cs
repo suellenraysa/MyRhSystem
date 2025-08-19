@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MyRhSystem.Application.Employees;
 using MyRhSystem.Contracts.Employees;
 
 namespace MyRhSystem.Infrastructure.Employees;

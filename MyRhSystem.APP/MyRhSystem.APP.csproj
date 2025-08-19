@@ -70,12 +70,6 @@
     </ItemGroup>
 
     <ItemGroup>
-
-      <Folder Include="Shared\Models\" />
-
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\MyRhSystem.Contracts\MyRhSystem.Contracts.csproj" />
     </ItemGroup>
 

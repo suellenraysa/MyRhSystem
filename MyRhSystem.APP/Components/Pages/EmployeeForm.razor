@@ -52,49 +52,91 @@
                             <div class="col-md-6">
                                 <label for="nome" class="form-label">Nome</label>
                                 <InputText id="nome" name="nome" class="form-control" placeholder="Nome"
-                                           @bind-Value="Details.Nome" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Nome" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-6">
                                 <label for="sobrenome" class="form-label">Sobrenome</label>
                                 <InputText id="sobrenome" name="sobrenome" class="form-control" placeholder="Sobrenome"
-                                           @bind-Value="Details.Sobrenome" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Sobrenome" disabled="@(IsViewOnly)" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="sexo" class="form-label">Sexo</label>                                
+                                <InputSelect id="sexo" name="sexo" class="form-select"
+                                             @bind-Value="Details.Sexo" disabled="@(IsViewOnly)">
+                                    <option value="">Selecione</option>
+                                    @foreach (var t in Genders)
+                                    {
+                                        <option value="@t">@t</option>
+                                    }
+                                </InputSelect>
                             </div>
                             <div class="col-md-6">
                                 <label for="datanascimento" class="form-label">Data de Nascimento</label>
                                 <InputDate id="datanascimento" name="datanascimento" class="form-control" placeholder="Data de Nascimento"
-                                           @bind-Value="Details.DataNascimento" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.DataNascimento" disabled="@(IsViewOnly)" />
                             </div>
 
                             <div class="col-md-6">
                                 <label for="email" class="form-label">E-mail</label>
                                 <InputText id="email" name="email" class="form-control" placeholder="E-mail"
-                                           @bind-Value="Details.Email" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Email" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-6">
                                 <label for="telefone" class="form-label">Telefone</label>
                                 <InputText id="telefone" name="telefone" class="form-control" placeholder="Telefone"
-                                           @bind-Value="Details.Telefone" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Telefone" disabled="@(IsViewOnly)" />
                             </div>
 
+                            <!-- Departamento -->
                             <div class="col-md-6">
-                                <label for="cargo" class="form-label">Cargo</label>
-                                <InputText id="cargo" name="cargo" class="form-control" placeholder="Cargo"
-                                           @bind-Value="Details.Cargo" disabled="@IsViewOnly" />
-                            </div>
-                            <div class="col-md-6">
-                                <label for="departamento" class="form-label">Departamento</label>
-                                <InputText id="departamento" name="departamento" class="form-control" placeholder="Departamento"
-                                           @bind-Value="Details.Departamento" disabled="@IsViewOnly" />
+                                <label for="emp-dept" class="form-label">Departamento</label>
+                                <InputSelect id="emp-dept"
+                                             name="emp-dept"
+                                             class="form-select"
+                                             @bind-Value="SelectedDepartmentId"
+                                             disabled="@(IsViewOnly)"
+                                             @onchange="OnDepartmentChanged">
+                                    <option value="">Selecione</option>
+                                    @foreach (var d in Departments)
+                                    {
+                                        <option value="@d.Id">@d.Nome</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => SelectedDepartmentId)" />
                             </div>
 
+                            <!-- Cargo (filtrado pelo departamento selecionado) -->
                             <div class="col-md-6">
-                                <label for="funcao" class="form-label">Função</label>
-                                <InputText id="funcao" name="funcao" class="form-control" placeholder="Função"
-                                           @bind-Value="Details.Funcao" disabled="@IsViewOnly" />
+                                <label for="emp-role" class="form-label">Cargo</label>
+                                <InputSelect id="emp-role"
+                                             name="emp-role"
+                                             class="form-select"
+                                             @bind-Value="SelectedJobRoleId"
+                                             disabled="@(IsRoleDisabled)">
+                                    <option value="">Selecione</option>
+                                    @foreach (var r in JobRoles.Where(r => r.DepartmentId == (SelectedDepartmentId ?? 0)))
+                                    {
+                                        <option value="@r.Id">@r.Nome (@r.LevelId)</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => SelectedJobRoleId)" />
                             </div>
+
+                            <!-- Função (descrição livre das atividades) -->
+                            <div class="col-md-6">
+                                <label for="emp-funcao" class="form-label">Função</label>
+                                <InputText id="emp-funcao"
+                                           name="emp-funcao"
+                                           class="form-control"
+                                           placeholder="Ex.: Responsável por R&S, atendimento, etc."
+                                           @bind-Value="Details.Funcao"
+                                           disabled="@(IsViewOnly)" />
+                                <ValidationMessage For="@(() => Details.Funcao)" />
+                            </div>
+
                             <div class="col-md-6">
                                 <label for="grau" class="form-label">Grau de Instrução</label>
-                                <InputSelect id="grau" name="grau" class="form-select" @bind-Value="Details.GrauInstrucao" disabled="@IsViewOnly">
+                                <InputSelect id="grau" name="grau" class="form-select" @bind-Value="Details.GrauInstrucao" disabled="@(IsViewOnly)">
                                     <option value="" selected disabled>Selecione</option>
                                     @foreach (var e in EducationLevels)
                                     {
@@ -106,20 +148,26 @@
                             <div class="col-md-6">
                                 <label for="nomemae" class="form-label">Nome Mae</label>
                                 <InputText id="mae" name="mae" class="form-control" placeholder="Filiação (Mãe)"
-                                           @bind-Value="Details.NomeMae" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.NomeMae" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-6">
                                 <label for="nomepai" class="form-label">NomePai</label>
                                 <InputText id="pai" name="pai" class="form-control" placeholder="Filiação (Pai)"
-                                           @bind-Value="Details.NomePai" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.NomePai" disabled="@(IsViewOnly)" />
                             </div>
-
-                            <div class="col-12 col-md-4">
+                            <div class="col-md-6">
                                 <label for="status" class="form-label">Status</label>
-                                <select id="status" name="status" class="form-select" @bind="Details.Ativo" disabled="@IsViewOnly">
+                                <InputSelect id="status"
+                                             name="status"
+                                             class="form-select"
+                                             TValue="bool?"
+                                             @bind-Value="Status"
+                                             disabled="@(IsViewOnly)">
+                                    <option value="">Selecione</option>
                                     <option value="true">Ativo</option>
                                     <option value="false">Inativo</option>
-                                </select>
+                                </InputSelect>
+                                <ValidationMessage For="@(() => Status)" />
                             </div>
                         </div>
                     }
@@ -131,53 +179,53 @@
                             <div class="col-md-6">
                                 <label for="cpf" class="form-label">CPF</label>
                                 <InputText id="cpf" name="cpf" class="form-control" placeholder="CPF"
-                                           @bind-Value="Details.Cpf" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Cpf" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-6">
                                 <label for="rg" class="form-label">RG</label>
                                 <InputText id="rg" name="rg" class="form-control" placeholder="RG"
-                                           @bind-Value="Details.Rg" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Rg" disabled="@(IsViewOnly)" />
                             </div>
 
                             <div class="col-md-6">
                                 <label for="orgao" class="form-label">Órgao Emissor</label>
                                 <InputText id="orgao" name="orgao" class="form-control" placeholder="Órgão Emissor"
-                                           @bind-Value="Details.OrgaoEmissor" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.OrgaoEmissor" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-6">
                                 <label for="rgemissao" class="form-label">Rg Emissão</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                                     <InputDate id="rgemissao" name="rgemissao" class="form-control"
-                                               @bind-Value="Details.RgEmissao" @bind-Value:format="dd/MM/yyyy" disabled="@IsViewOnly" />
+                                               @bind-Value="Details.RgEmissao" @bind-Value:format="dd/MM/yyyy" disabled="@(IsViewOnly)" />
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="titulo" class="form-label">Título Eleitor</label>
                                 <InputText id="titulo" name="titulo" class="form-control" placeholder="Título de Eleitor"
-                                           @bind-Value="Details.TituloEleitor" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.TituloEleitor" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-3">
                                 <label for="zona" class="form-label">Zona</label>
                                 <InputText id="zona" name="zona" class="form-control" placeholder="Zona"
-                                           @bind-Value="Details.Zona" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Zona" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-3">
                                 <label for="sessao" class="form-label">Sessão</label>
                                 <InputText id="sessao" name="sessao" class="form-control" placeholder="Seção"
-                                           @bind-Value="Details.Sessao" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Sessao" disabled="@(IsViewOnly)" />
                             </div>
 
                             <div class="col-md-6">
                                 <label for="ctps" class="form-label">CTPS Número</label>
                                 <InputText id="ctps" name="ctps" class="form-control" placeholder="CTPS"
-                                           @bind-Value="Details.CtpsNumero" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.CtpsNumero" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-6">
                                 <label for="ctpsserie" class="form-label">CTPS Série</label>
                                 <InputText id="ctpsserie" name="ctpsserie" class="form-control" placeholder="Série"
-                                           @bind-Value="Details.CtpsSerie" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.CtpsSerie" disabled="@(IsViewOnly)" />
                             </div>
                         </div>
                     }
@@ -189,7 +237,7 @@
                             <div class="col-md-5">
                                 <label for="tipocontrato" class="form-label">Tipo de Contrato</label>
                                 <InputSelect id="tipocontrato" name="tipocontrato" class="form-select"
-                                             @bind-Value="Details.TipoContrato" disabled="@IsViewOnly">
+                                             @bind-Value="Details.TipoContrato" disabled="@(IsViewOnly)">
                                     <option value="">Selecione</option>
                                     @foreach (var t in WorkRegime)
                                     {
@@ -201,7 +249,7 @@
                             <div class="col-md-3">
                                 <label for="jornada"  class="form-label">Jornada (h/sem)</label>
                                 <InputNumber id="jornada" name="jornada" class="form-control"
-                                             @bind-Value="Details.JornadaHoras" disabled="@IsViewOnly" />
+                                             @bind-Value="Details.JornadaHoras" disabled="@(IsViewOnly)" />
                             </div>
 
                             <div class="col-md-4">
@@ -209,7 +257,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                                     <InputDate id="admissao" name="admissao" class="form-control"
-                                               @bind-Value="Details.Admissao" @bind-Value:format="dd/MM/yyyy" disabled="@IsViewOnly" />
+                                               @bind-Value="Details.Admissao" @bind-Value:format="dd/MM/yyyy" disabled="@(IsViewOnly)" />
                                 </div>
                             </div>
 
@@ -218,7 +266,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                                     <InputDate id="experiencia1" name="experiencia1" class="form-control"
-                                               @bind-Value="Details.DataExperiencia" @bind-Value:format="dd/MM/yyyy" disabled="@IsViewOnly" />
+                                               @bind-Value="Details.DataExperiencia" @bind-Value:format="dd/MM/yyyy" disabled="@(IsViewOnly)" />
                                 </div>
                             </div>
 
@@ -227,7 +275,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
                                     <InputDate id="experiencia2" name="experiencia2" class="form-control"
-                                               @bind-Value="Details.DataExperiencia1" @bind-Value:format="dd/MM/yyyy" disabled="@IsViewOnly" />
+                                               @bind-Value="Details.DataExperiencia1" @bind-Value:format="dd/MM/yyyy" disabled="@(IsViewOnly)" />
                                 </div>
                             </div>
 
@@ -272,27 +320,32 @@
                             <div class="col-md-6">
                                 <label for="endereco" class="form-label">Endereço</label>
                                 <InputText id="endereco" name="endereco" class="form-control" placeholder="Endereço"
-                                           @bind-Value="Details.Endereco" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Endereco" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-3">
                                 <label for="numero" class="form-label">Número</label>
                                 <InputText id="numero" name="numero" class="form-control" placeholder="Número"
-                                           @bind-Value="Details.Numero" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Numero" disabled="@(IsViewOnly)" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="complemento" class="form-label">Complemento</label>
+                                <InputText id="complemento" name="complemento" class="form-control" placeholder="Complemento"
+                                           @bind-Value="Details.Complemento" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-3">
                                 <label for="bairro" class="form-label">Bairro</label>
                                 <InputText id="bairro" name="bairro" class="form-control" placeholder="Bairro"
-                                           @bind-Value="Details.Bairro" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Bairro" disabled="@(IsViewOnly)" />
                             </div>
 
                             <div class="col-md-6">
                                 <label for="cidade" class="form-label">Cidade</label>
                                 <InputText id="cidade" name="cidade" class="form-control" placeholder="Cidade"
-                                           @bind-Value="Details.Cidade" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Cidade" disabled="@(IsViewOnly)" />
                             </div>
                             <div class="col-md-3">
                                 <label for="uf" class="form-label">UF</label>
-                                <InputSelect id="uf" name="uf" class="form-select" @bind-Value="Details.UF" disabled="@IsViewOnly">
+                                <InputSelect id="uf" name="uf" class="form-select" @bind-Value="Details.UF" disabled="@(IsViewOnly)">
                                     <option value="" selected disabled>Selecione</option>
                                     @foreach (var uf in States)
                                     {
@@ -303,7 +356,7 @@
                             <div class="col-md-3">
                                 <label for="cep" class="form-label">CEP</label>
                                 <InputText id="cep" name="cep" class="form-control" placeholder="CEP"
-                                           @bind-Value="Details.Cep" disabled="@IsViewOnly" />
+                                           @bind-Value="Details.Cep" disabled="@(IsViewOnly)" />
                             </div>
                         </div>
                     }
@@ -315,12 +368,12 @@
                             <div class="col-md-6 d-flex align-items-center gap-4">
                                 <div class="form-check">
                                     <input id="bvr" name="bvr" type="checkbox" class="form-check-input"
-                                           @bind="HasValeRefeicao" disabled="@IsViewOnly" />
+                                           @bind="HasValeRefeicao" disabled="@(IsViewOnly)" />
                                     <label for="bvr" class="form-check-label">Vale Refeição</label>
                                 </div>
                                 <div class="form-check">
                                     <input id="bvt" name="bvt" type="checkbox" class="form-check-input"
-                                           @bind="HasValeTransporte" disabled="@IsViewOnly" />
+                                           @bind="HasValeTransporte" disabled="@(IsViewOnly)" />
                                     <label for="bvt" class="form-check-label">Vale Transporte</label>
                                 </div>
                             </div>
@@ -348,15 +401,15 @@
                                 <div class="row g-2 align-items-end mb-2">
                                     <div class="col-md-5">
                                         <InputText id="@($"dep-nome-{d.Id}")" name="@($"dep-nome-{d.Id}")" class="form-control" placeholder="Nome"
-                                                   @bind-Value="d.Nome" disabled="@IsViewOnly" />
+                                                   @bind-Value="d.Nome" disabled="@(IsViewOnly)" />
                                     </div>
                                     <div class="col-md-4">
                                         <InputDate id="@($"dep-nasc-{d.Id}")" name="@($"dep-nasc-{d.Id}")" class="form-control"
-                                                   @bind-Value="d.Nascimento" disabled="@IsViewOnly" />
+                                                   @bind-Value="d.Nascimento" disabled="@(IsViewOnly)" />
                                     </div>
                                     <div class="col-md-3">
                                         <InputText id="@($"dep-par-{d.Id}")" name="@($"dep-par-{d.Id}")" class="form-control" placeholder="Parentesco"
-                                                   @bind-Value="d.GrauParentesco" disabled="@IsViewOnly" />
+                                                   @bind-Value="d.GrauParentesco" disabled="@(IsViewOnly)" />
                                     </div>
                                     @if (!IsViewOnly)
                                     {
@@ -398,7 +451,7 @@
                                                    class="form-control"
                                                    placeholder="Nome"
                                                    @bind-Value="c.Nome"
-                                                   disabled="@IsViewOnly" />
+                                                   disabled="@(IsViewOnly)" />
                                     </div>
                                     <div class="col-md-4">
                                         <InputText id="@($"emerg-par-{c.Id}")"
@@ -406,7 +459,7 @@
                                                    class="form-control"
                                                    placeholder="Parentesco"
                                                    @bind-Value="c.GrauParentesco"
-                                                   disabled="@IsViewOnly" />
+                                                   disabled="@(IsViewOnly)" />
                                     </div>
                                     <div class="col-md-4">
                                         <InputText id="@($"emerg-tel-{c.Id}")"
@@ -414,7 +467,7 @@
                                                    class="form-control"
                                                    placeholder="Telefone"
                                                    @bind-Value="c.Telefone"
-                                                   disabled="@IsViewOnly" />
+                                                   disabled="@(IsViewOnly)" />
                                     </div>
 
                                     @if (!IsViewOnly)
@@ -441,7 +494,7 @@
                     <button type="button" class="btn btn-light" @onclick="CancelAsync">Cancelar</button>
                     @if (!IsViewOnly)
                     {
-                        <button type="submit" class="btn btn-success">Salvar</button>
+                        <button type="submit" class="btn btn-success" @onclick="() => SaveAsync()">Salvar</button>
                     }
                 </div>
             </EditForm>

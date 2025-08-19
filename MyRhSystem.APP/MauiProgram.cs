@@ -75,6 +75,7 @@ namespace MyRhSystem.APP
             builder.Services.AddScoped<UsersViewModel>();
             builder.Services.AddScoped<UserEditViewModel>();
             builder.Services.AddScoped<LoginViewModel>();
+            builder.Services.AddScoped<EmployeesApiService>();
 
             var app = builder.Build();
             return app;
