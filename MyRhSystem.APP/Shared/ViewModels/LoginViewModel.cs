@@ -4,64 +4,110 @@ using Microsoft.AspNetCore.Components;
 using MyRhSystem.APP.Shared.Services;
 using MyRhSystem.Contracts.Auth;
 
-namespace MyRhSystem.APP.Shared.ViewModels;
-
 public partial class LoginViewModel : ObservableObject
 {
     private readonly AuthApiService _authApiService;
-    private readonly NavigationManager _navigationService;
+    private readonly NavigationManager _navigation;
+    private CancellationTokenSource? _cts;
 
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool hasAnyUser;
-    [ObservableProperty] private string email = "";
-    [ObservableProperty] private string password = "";
-    [ObservableProperty] private string? error;
+    private bool isLoading;
+    public bool IsLoading { get => isLoading; set => SetProperty(ref isLoading, value); }
 
-    public LoginViewModel(AuthApiService authApiService, NavigationManager navigationService)
+    private bool hasAnyUser;
+    public bool HasAnyUser { get => hasAnyUser; set => SetProperty(ref hasAnyUser, value); }
+
+    private string? email;
+    public string? Email { get => email; set => SetProperty(ref email, value); }
+
+    private string? password;
+    public string? Password { get => password; set => SetProperty(ref password, value); }
+
+    private string? error;
+    public string? Error { get => error; set => SetProperty(ref error, value); }
+
+    public LoginViewModel(AuthApiService authApiService, NavigationManager navigation)
     {
         _authApiService = authApiService;
-        _navigationService = navigationService;
+        _navigation = navigation;
     }
 
     [RelayCommand]
-    
     public async Task InitializeAsync()
     {
-        IsLoading = true;
-        var res = await _authApiService.HasAnyUserAsync();
-        HasAnyUser = res?.HasAnyUser ?? false;
-        IsLoading = false;
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        var ct = _cts.Token;
+
+        try
+        {
+            IsLoading = true;
+            var res = await _authApiService.HasAnyUserAsync(ct);
+            HasAnyUser = res?.HasAnyUser ?? false;
+            Error = null;
+        }
+        catch (OperationCanceledException) { /* ignorar */ }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Login] HTTP: {ex}");
+            Error = "Não foi possível conectar ao servidor.";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Login] Init error: {ex}");
+            Error = "Falha ao carregar informações iniciais.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]
     public async Task LoginAsync()
     {
-        Error = null;
         if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
         {
             Error = "Informe e-mail e senha.";
             return;
         }
 
-        IsLoading = true;
-        var resp = await _authApiService.LoginAsync(new LoginRequest { Email = Email.Trim(), Password = Password });
-        IsLoading = false;
-
-        if (resp is null)
+        try
         {
-            Error = "E-mail ou senha inválidos.";
-            return;
+            IsLoading = true;
+            Error = null;
+
+            var resp = await _authApiService.LoginAsync(
+                new LoginRequest { Email = Email.Trim(), Password = Password });
+
+            if (resp is null)
+            {
+                Error = "E-mail ou senha inválidos.";
+                return;
+            }
+
+            // TODO: salvar token/usuário
+            _navigation.NavigateTo("/company/list", replace: true);
         }
-
-        // TODO: guardar token/usuário (SecureStorage/Preferências)
-        // SecureStorage.SetAsync("auth_token", resp.Token ?? "");
-        // Preferências simples p/ demo:
-        // Preferences.Default.Set("user_email", resp.User.Email);
-
-        // Redirecionar para a home do app (ex.: /users)
-        _navigationService.NavigateTo("/users", replace: true);
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Login] HTTP: {ex}");
+            Error = "Servidor indisponível ou endereço incorreto.";
+        }
+        catch (NotSupportedException ex) // JSON inesperado
+        {
+            System.Diagnostics.Debug.WriteLine($"[Login] JSON: {ex}");
+            Error = "Resposta inesperada do servidor.";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Login] Error: {ex}");
+            Error = "Falha ao entrar. Tente novamente.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
-    [RelayCommand] public void GoToRegister() => _navigationService.NavigateTo("/users/edit");
+    [RelayCommand] public void GoToRegister() => _navigation.NavigateTo("/users/edit");
 }
-

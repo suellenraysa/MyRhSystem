@@ -7,8 +7,8 @@
     /* Brand / UI */
     --color-brand: #4EF37A;
     --color-accent: #2563eb;
-    --color-primary: #fdb078;
-    --color-link: #8fa81e;
+    --color-primary: #003838;
+    --color-link: #6ed19c;
     /* Neutrals */
     --bg-01: #ffffff;
     --bg-02: #f6f9fc;
@@ -21,7 +21,7 @@
     /* Semantic */
     --success-01: #26b050;
     --danger-01: #e50000;
-    --focus-outer: #258cfb;
+    --focus-outer: #1d7d53;
     /* Elevation */
     --shadow-100: 0 1px 2px rgba(16,24,40,.05);
     --shadow-200: 0 6px 18px rgba(16,24,40,.08);
@@ -42,8 +42,11 @@ a, .btn-link {
 .btn-primary {
     color: #fff;
     background-color: var(--color-primary);
-    border-color: #1861ac; /* mantém pra compat */
+    border-color: #207a7a; /* mantém pra compat */
 }
+    .btn-primary:hover {
+        background-color: #1d7d53;
+    }
 
 .btn-add-funcionario {
     color: #fff;
@@ -57,7 +60,7 @@ a, .btn-link {
 .btn-link.nav-link:focus,
 .form-control:focus,
 .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem var(--focus-outer);
+    box-shadow: 0 0 0 0.1rem #1d7d53, 0 0 0 0.25rem var(--focus-outer);
 }
 
 /* =========================================================
@@ -155,7 +158,7 @@ h1:focus {
 }
 /* seletor corrigido */
 .container.text-center {
-    background-color: aqua;
+    background-color: #4e8a6a;
 }
 
 /* Painéis / Badges utilitários */
@@ -364,6 +367,7 @@ h1:focus {
 
         .item-sub .link:hover {
             text-decoration: underline;
+            color: #198754;
         }
 
 .item-right {
