@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyRhSystem.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using MyRhSystem.Infrastructure.Persistence;
 namespace MyRhSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250819152823_Add_New_tables")]
+    partial class Add_New_tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -511,6 +514,43 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasDatabaseName("UX_job_levels_nome");
 
                     b.ToTable("job_levels", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(5508),
+                            Nome = "Estagiário",
+                            Ordem = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6197),
+                            Nome = "Júnior",
+                            Ordem = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6271),
+                            Nome = "Pleno",
+                            Ordem = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272),
+                            Nome = "Sênior",
+                            Ordem = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272),
+                            Nome = "Trainer",
+                            Ordem = 5
+                        });
                 });
 
             modelBuilder.Entity("MyRhSystem.Domain.Entities.JobRoles.JobRole", b =>

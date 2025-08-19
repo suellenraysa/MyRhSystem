@@ -33,55 +33,102 @@ namespace MyRhSystem.Infrastructure.Persistence
             // ===== Users =====
             mb.Entity<User>(e =>
             {
+                e.ToTable("users");
                 e.HasKey(x => x.Id);
                 e.Property(x => x.Nome).HasMaxLength(255).IsRequired();
                 e.Property(x => x.Email).HasMaxLength(255).IsRequired();
                 e.HasIndex(x => x.Email).IsUnique();
             });
 
-            // ===== UserCompany (chave composta) =====
-            mb.Entity<UserCompany>()
-                .HasKey(uc => new { uc.UserId, uc.CompanyId });
-
-            mb.Entity<UserCompany>()
-                .HasOne(uc => uc.User)
-                .WithMany(u => u.UserCompanies)
-                .HasForeignKey(uc => uc.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            mb.Entity<UserCompany>()
-                .HasOne(uc => uc.Company)
-                .WithMany(c => c.UserCompanies)
-                .HasForeignKey(uc => uc.CompanyId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // ===== Company: Address como Value Object =====
-            mb.Entity<Company>().OwnsOne<Address>(c => c.Address, nav =>
+            // ===== Companies =====
+            mb.Entity<Company>(e =>
             {
-                nav.Property(a => a.Endereco).HasColumnName("address_street").HasMaxLength(255);
-                nav.Property(a => a.Numero).HasColumnName("address_number").HasMaxLength(50);
-                nav.Property(a => a.Bairro).HasColumnName("address_district").HasMaxLength(120);
-                nav.Property(a => a.Cidade).HasColumnName("address_city").HasMaxLength(120);
-                nav.Property(a => a.UF).HasColumnName("address_state").HasMaxLength(2);
-                nav.Property(a => a.Cep).HasColumnName("address_zipcode").HasMaxLength(20);
-                nav.Property(a => a.Complemento).HasColumnName("address_complement").HasMaxLength(150);
+                e.ToTable("companies");
+                e.HasKey(c => c.Id);
+
+                e.Property(c => c.Nome).HasColumnName("nome").HasMaxLength(255);
+                e.Property(c => c.CreatedAt).HasColumnName("createdAt");
+
+                e.Property(c => c.AddressId).HasColumnName("address_id");
+
+                // FK opcional para Address
+                e.HasOne(c => c.Address)
+                 .WithMany()                      // sem navegação inversa
+                 .HasForeignKey(c => c.AddressId)
+                 .OnDelete(DeleteBehavior.Restrict); // evita múltiplos cascades
             });
 
-            // ===== Employee: Address como Value Object =====
-            mb.Entity<Employee>().OwnsOne<Address>(e => e.Address, nav =>
+            mb.Entity<Address>(e =>
             {
-                nav.Property(a => a.Endereco).HasColumnName("address_street").HasMaxLength(255);
-                nav.Property(a => a.Numero).HasColumnName("address_number").HasMaxLength(50);
-                nav.Property(a => a.Bairro).HasColumnName("address_district").HasMaxLength(120);
-                nav.Property(a => a.Cidade).HasColumnName("address_city").HasMaxLength(120);
-                nav.Property(a => a.UF).HasColumnName("address_state").HasMaxLength(2);
-                nav.Property(a => a.Cep).HasColumnName("address_zipcode").HasMaxLength(20);
-                nav.Property(a => a.Complemento).HasColumnName("address_complement").HasMaxLength(150);
+                e.ToTable("addresses");
+                e.HasKey(a => a.Id);
+
+                // ajuste os nomes/limites conforme seu VO
+                e.Property(a => a.Endereco).HasColumnName("street").HasMaxLength(255);
+                e.Property(a => a.Numero).HasColumnName("number").HasMaxLength(50);
+                e.Property(a => a.Bairro).HasColumnName("district").HasMaxLength(120);
+                e.Property(a => a.Cidade).HasColumnName("city").HasMaxLength(120);
+                e.Property(a => a.UF).HasColumnName("state").HasMaxLength(2);
+                e.Property(a => a.Cep).HasColumnName("zipcode").HasMaxLength(20);
+                e.Property(a => a.Complemento).HasColumnName("complement").HasMaxLength(150);
+            });
+
+            // ===== Employees =====
+            mb.Entity<Employee>(e =>
+            {
+                e.ToTable("employees");
+                e.HasKey(x => x.Id);
+
+                e.Property(x => x.CompanyId).HasColumnName("company_id");
+                e.HasOne(x => x.Company)
+                 .WithMany(c => c.Employees)
+                 .HasForeignKey(x => x.CompanyId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                // campos (mantive seus nomes)
+                e.Property(x => x.Nome).HasColumnName("nome").HasMaxLength(100).IsRequired();
+                e.Property(x => x.Sobrenome).HasColumnName("sobrenome").HasMaxLength(150).IsRequired();
+                e.Property(x => x.Sexo).HasColumnName("sexo").HasMaxLength(10).IsRequired();
+                e.Property(x => x.DataNascimento).HasColumnName("data_nascimento").IsRequired();
+                e.Property(x => x.Email).HasColumnName("email").HasMaxLength(80);
+                e.Property(x => x.Telefone).HasColumnName("telefone").HasMaxLength(30).IsRequired();
+
+                e.Property(x => x.AddressId).HasColumnName("address_id");
+                e.HasOne(x => x.Address)
+                 .WithMany()
+                 .HasForeignKey(x => x.AddressId)
+                 .OnDelete(DeleteBehavior.Restrict); // idem
+
+                e.Property(x => x.Cargo).HasColumnName("cargo").HasMaxLength(255).IsRequired();
+                e.Property(x => x.Departamento).HasColumnName("departamento").HasMaxLength(255).IsRequired();
+                e.Property(x => x.Funcao).HasColumnName("funcao").HasMaxLength(255).IsRequired();
+                e.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
+                e.Property(x => x.CreatedAt).HasColumnName("created_at");
+                e.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+            });
+
+            // ===== UserCompany (chave composta) =====
+            mb.Entity<UserCompany>(e =>
+            {
+                e.ToTable("user_companies");
+
+                e.HasKey(uc => new { uc.UserId, uc.CompanyId });
+
+                e.HasOne(uc => uc.User)
+                 .WithMany(u => u.UserCompanies)
+                 .HasForeignKey(uc => uc.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(uc => uc.Company)
+                 .WithMany(c => c.UserCompanies)
+                 .HasForeignKey(uc => uc.CompanyId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
             // ===== Departments =====
             mb.Entity<Department>(e =>
             {
+                e.ToTable("departments");
                 e.HasKey(d => d.Id);
                 e.Property(d => d.Nome).HasMaxLength(150).IsRequired();
                 e.HasIndex(d => d.Nome).HasDatabaseName("UX_departments_nome").IsUnique(false);
@@ -90,24 +137,20 @@ namespace MyRhSystem.Infrastructure.Persistence
             // ===== JobLevels =====
             mb.Entity<JobLevels>(e =>
             {
+                e.ToTable("job_levels");
                 e.HasKey(l => l.Id);
                 e.Property(l => l.Nome).HasMaxLength(100).IsRequired();
                 e.Property(l => l.Ordem).IsRequired();
                 e.HasIndex(l => l.Nome).HasDatabaseName("UX_job_levels_nome").IsUnique(true);
             });
 
-            // (Opcional) Seed de níveis padrão
-            mb.Entity<JobLevels>().HasData(
-                new JobLevels { Id = 1, Nome = "Estagiário", Ordem = 1 },
-                new JobLevels { Id = 2, Nome = "Júnior", Ordem = 2 },
-                new JobLevels { Id = 3, Nome = "Pleno", Ordem = 3 },
-                new JobLevels { Id = 4, Nome = "Sênior", Ordem = 4 },
-                new JobLevels { Id = 5, Nome = "Trainer", Ordem = 5 }
-            );
+            
 
             // ===== JobRoles =====
             mb.Entity<JobRole>(e =>
             {
+                e.ToTable("job_roles");
+
                 e.HasKey(r => r.Id);
                 e.Property(r => r.Nome).HasMaxLength(150).IsRequired();
 
@@ -124,15 +167,15 @@ namespace MyRhSystem.Infrastructure.Persistence
 
                 // FK: JobLevel
                 e.HasOne(r => r.Level)
-                 .WithMany() // se quiser reverso: adicione ICollection<JobRoles> em JobLevels e troque por .WithMany(l => l.JobRoles)
+                 .WithMany() // ou .WithMany(l => l.JobRoles)
                  .HasForeignKey(r => r.LevelId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-                // Índice auxiliar
                 e.HasIndex(r => new { r.Nome, r.DepartmentId })
                  .HasDatabaseName("UX_job_roles_nome_department")
                  .IsUnique(false);
             });
+
         }
     }
 }
