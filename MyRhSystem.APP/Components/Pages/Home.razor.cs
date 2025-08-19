@@ -32,7 +32,6 @@ public partial class Home : ComponentBase
         {
             new("TechCorp", "Tecnologia", "51-200 funcionários", "São Paulo", "SP", "https://techcorp.com"),
             new("InovaDigital", "Tecnologia", "11-50 funcionários", "Rio de Janeiro", "RJ", "https://inovadigital.com"),
-            new("Comercial Santos & Filhos", "Comércio", "1-10 funcionários", "Belo Horizonte", "MG", ""),
             new("Horizonte", "Construção", "201-500 funcionários", "Porto Alegre", "RS", "https://horizonteconstrucoes.com"),
         };
 
