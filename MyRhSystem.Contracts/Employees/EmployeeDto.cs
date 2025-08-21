@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace MyRhSystem.Contracts.Employees
 {
-    internal class EmployeeListItemDto
-    {
-    }
+    public record EmployeeDto(
+    int Id,
+    string Nome,
+    string Email,
+    string Departamento,
+    string Cargo,
+    bool Ativo);
+
 }

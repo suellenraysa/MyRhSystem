@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyRhSystem.Contracts.JobRole
 {
@@ -9,10 +10,11 @@ namespace MyRhSystem.Contracts.JobRole
         [Required, StringLength(100)]
         public string Nome { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Ordem hierárquica do nível (1 = Estagiário, 2 = Júnior, 3 = Pleno, etc).
-        /// </summary>
-        [Required]
-        public int Ordem { get; set; }
+        // ========= Auditoria =========
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
     }
 }

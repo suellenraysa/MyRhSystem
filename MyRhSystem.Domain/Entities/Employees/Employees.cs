@@ -26,6 +26,10 @@ namespace MyRhSystem.Domain.Entities.Employees
         [ForeignKey(nameof(CompanyId))]
         public Company Company { get; set; } = null!;
 
+        [Column("branch_id")]
+        public int? BranchId { get; set; }
+        public Branch? Branch { get; set; }
+
         // Pessoais
         [Required, StringLength(100)]
         [Column("nome")]

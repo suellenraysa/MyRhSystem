@@ -499,10 +499,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("nome");
 
-                    b.Property<int>("Ordem")
-                        .HasColumnType("int")
-                        .HasColumnName("ordem");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
@@ -521,35 +517,30 @@ namespace MyRhSystem.Infrastructure.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(5508),
                             Nome = "Estagiário",
-                            Ordem = 1
                         },
                         new
                         {
                             Id = 2,
                             CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6197),
                             Nome = "Júnior",
-                            Ordem = 2
                         },
                         new
                         {
                             Id = 3,
                             CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6271),
                             Nome = "Pleno",
-                            Ordem = 3
                         },
                         new
                         {
                             Id = 4,
                             CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272),
                             Nome = "Sênior",
-                            Ordem = 4
                         },
                         new
                         {
                             Id = 5,
                             CreatedAt = new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272),
                             Nome = "Trainer",
-                            Ordem = 5
                         });
                 });
 

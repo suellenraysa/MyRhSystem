@@ -1,5 +1,6 @@
 using MyRhSystem.API.Endpoints;
 using MyRhSystem.API.Mapper;
+using MyRhSystem.API.Profiles;
 using MyRhSystem.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddAutoMapper(typeof(UsersProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(OrganizationalStructureProfile).Assembly);
 
 var app = builder.Build();
 
@@ -27,6 +29,9 @@ if (app.Environment.IsDevelopment())
 
 app.MapGroup("/api/users").MapUsersEndpoints();
 app.MapGroup("/api/auth").MapAuthEndpoints();
+app.MapGroup("api/employees").MapEmployeesEndpoints();
+app.MapOrganizationalStructureEndpoints();
+
 
 app.UseHttpsRedirection();
 

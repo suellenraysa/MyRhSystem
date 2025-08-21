@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MyRhSystem.Domain.Entities.Companies;
 
 namespace MyRhSystem.Domain.Entities.JobRoles
 {
@@ -13,6 +14,12 @@ namespace MyRhSystem.Domain.Entities.JobRoles
         [Required, StringLength(150)]
         [Column("nome")]
         public string Nome { get; set; } = string.Empty;
+
+        // ========= FK: Empresa =========
+        [Column("company_id")]
+        public int CompanyId { get; set; }
+        [ForeignKey(nameof(CompanyId))]
+        public Company Company { get; set; } = default!;
 
         // ========= FK: Department =========
         [Required]

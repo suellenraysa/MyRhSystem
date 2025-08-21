@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MyRhSystem.APP.Shared.Services;
 using MyRhSystem.APP.Shared.ViewModels;
@@ -10,12 +11,16 @@ namespace MyRhSystem.APP
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
+            // Carrega configs (base + Development em DEBUG)
+            builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+#if DEBUG
+            builder.Configuration.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+#endif
+
             builder
                 .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+                .ConfigureFonts(f => f.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"));
 
             builder.Services.AddMauiBlazorWebView();
 
@@ -24,24 +29,7 @@ namespace MyRhSystem.APP
             builder.Logging.AddDebug();
 #endif
 
-           // =========================
-            // Backend base URL por plataforma (porta fixa 7006)
-            // =========================
-            string BackendBase;
-#if WINDOWS
-            BackendBase = "https://localhost:7006/";
-#elif ANDROID
-            // Emulador usa 10.0.2.2; dispositivo físico usa o IP do seu PC (192.168.1.23 no seu caso)
-            BackendBase = DeviceInfo.DeviceType == DeviceType.Virtual
-                ? "https://10.0.2.2:7006/"
-                : "https://192.168.2.29:7006/";
-#elif IOS
-            BackendBase = "https://192.168.0.10:7006/";
-#else
-            BackendBase = "https://localhost:7006/";
-#endif
-
-            // Handler que aceita o certificado de dev (apenas em DEBUG)
+            // Aceitar certificado de dev (apenas DEBUG)
             static HttpMessageHandler DevHandlerFactory()
             {
                 var h = new HttpClientHandler();
@@ -52,33 +40,58 @@ namespace MyRhSystem.APP
                 return h;
             }
 
+            // Escolhe a base URL conforme plataforma/dispositivo
+            var apiBaseUrl = PickApiBaseUrl(builder.Configuration);
 
+            // HTTP Clients tipados
+            builder.Services.AddHttpClient<UsersApiService>(c => c.BaseAddress = new Uri(apiBaseUrl))
+                            .ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
 
-            // =========================
-            // HTTP CLIENTS TIPADOS
-            // =========================
+            builder.Services.AddHttpClient<AuthApiService>(c => c.BaseAddress = new Uri(apiBaseUrl))
+                            .ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
 
+            builder.Services.AddHttpClient<EmployeesApiService>(c => c.BaseAddress = new Uri(apiBaseUrl))
+                            .ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
 
-            builder.Services.AddHttpClient<UsersApiService>(c =>
-            {
-                c.BaseAddress = new Uri(BackendBase);
-            }).ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
+            builder.Services.AddHttpClient<IOrganizationalStructureApiService, OrganizationalStructureApiService>(
+                                c => c.BaseAddress = new Uri(apiBaseUrl))
+                            .ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
 
-            builder.Services.AddHttpClient<AuthApiService>(c =>
-            {
-                c.BaseAddress = new Uri(BackendBase);
-            }).ConfigurePrimaryHttpMessageHandler(DevHandlerFactory);
-
-            // =========================
-            // VIEWMODELS
-            // =========================
+            // ViewModels
             builder.Services.AddScoped<UsersViewModel>();
             builder.Services.AddScoped<UserEditViewModel>();
             builder.Services.AddScoped<LoginViewModel>();
-            builder.Services.AddScoped<EmployeesApiService>();
 
-            var app = builder.Build();
-            return app;
+            return builder.Build();
         }
+
+        private static string PickApiBaseUrl(IConfiguration config)
+        {
+            // Fallback global (web/desktop)
+            var fallback = config["ApiBaseUrl"];
+
+#if ANDROID
+            var forceEmu = bool.TryParse(config["Android:UseEmulator"], out var b) && b;
+            var isVirtual = DeviceInfo.DeviceType == DeviceType.Virtual;
+
+            var baseUrl = (forceEmu || isVirtual)
+                ? config["Android:EmulatorBaseUrl"]
+                : config["Android:DeviceBaseUrl"];
+
+            return baseUrl ?? fallback ?? throw new InvalidOperationException("Defina ApiBaseUrl em appsettings.");
+#elif IOS
+            var forceSim = bool.TryParse(config["iOS:UseEmulator"], out var b) && b;
+            var isVirtual = DeviceInfo.DeviceType == DeviceType.Virtual;
+
+            var baseUrl = (forceSim || isVirtual)
+                ? config["iOS:SimulatorBaseUrl"]
+                : config["iOS:DeviceBaseUrl"];
+
+            return baseUrl ?? fallback ?? throw new InvalidOperationException("Defina ApiBaseUrl em appsettings.");
+        #else
+            return fallback ?? "https://localhost:7006/";
+        #endif
+        }
+
     }
 }

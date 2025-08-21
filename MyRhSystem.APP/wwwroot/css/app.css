@@ -785,4 +785,21 @@ h1:focus {
     color: #1f2937; /* igual aos demais títulos */
     margin-bottom: .35rem;
 }
+/* Item da lista de departamentos (não herdará mais o azul) */
+.dept-item {
+    border-radius: 10px;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+    /* Selecionado: mesmo “mood” do avatar/menu */
+    .dept-item.is-selected {
+        background: #e8f5ee; /* verdinho claro */
+        color: #0f5132; /* verde escuro de texto */
+        border-color: #b7e2c7; /* borda suave */
+    }
+
+    /* Estado hover opcional p/ feedback */
+    .dept-item:hover {
+        background: #f3faf6;
+    }
 

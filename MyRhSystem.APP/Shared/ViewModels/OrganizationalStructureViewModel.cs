@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using MyRhSystem.APP.Shared.Services;
 using MyRhSystem.Contracts.Departments;
 using MyRhSystem.Contracts.JobRole;
 
@@ -6,6 +7,11 @@ namespace MyRhSystem.APP.Shared.ViewModels;
 
 public class OrganizationalStructureViewModel : ComponentBase
 {
+    [Inject] protected IOrganizationalStructureApiService Api { get; set; } = default!;
+
+    // Contexto — injete/atribua a empresa selecionada (ex.: do layout/seleção)
+    [Parameter] public int CompanyId { get; set; }
+
     // Dados
     public List<DepartmentDto> Departments { get; set; } = new();
     public List<JobRoleDto> JobRoles { get; set; } = new();
@@ -16,57 +22,36 @@ public class OrganizationalStructureViewModel : ComponentBase
     public int? SelectedRoleId { get; set; }
     public int? SelectedRoleLevelId { get; set; }
 
-    // Modais - estado
+    // Modais
     public bool ShowDepartmentModal { get; set; }
     public bool ShowRoleModal { get; set; }
     public bool ShowLevelModal { get; set; }
 
-    // Títulos dos modais
+    // Títulos
     public string DepartmentModalTitle { get; set; } = "Novo Departamento";
     public string RoleModalTitle { get; set; } = "Novo Cargo";
     public string LevelModalTitle { get; set; } = "Novo Nível";
 
-    // Objetos em edição
+    // Edição
     public DepartmentDto DepartmentEditing { get; set; } = new();
     public JobRoleDto RoleEditing { get; set; } = new();
     public JobLevelDto LevelEditing { get; set; } = new();
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        // TODO: substituir por chamadas a serviços (API/EF)
-        Departments = new()
-        {
-            new DepartmentDto { Id = 1, Nome = "RH" },
-            new DepartmentDto { Id = 2, Nome = "Financeiro" },
-            new DepartmentDto { Id = 3, Nome = "Tecnologia" },
-        };
-
-        Levels = new()
-        {
-            new JobLevelDto { Id = 1, Nome = "Estagiário", Ordem = 1 },
-            new JobLevelDto { Id = 2, Nome = "Júnior",     Ordem = 2 },
-            new JobLevelDto { Id = 3, Nome = "Pleno",      Ordem = 3 },
-            new JobLevelDto { Id = 4, Nome = "Sênior",     Ordem = 4 },
-            new JobLevelDto { Id = 5, Nome = "Trainer",    Ordem = 5 },
-        };
-
-        JobRoles = new()
-        {
-            new JobRoleDto { Id = 10, DepartmentId = 1, Nome = "Analista de RH", LevelId = 3, SalarioBase = 4500, SalarioMaximo = 6500 },
-            new JobRoleDto { Id = 11, DepartmentId = 2, Nome = "Analista Financeiro", LevelId = 2, SalarioBase = 3800 },
-            new JobRoleDto { Id = 12, DepartmentId = 3, Nome = "Desenvolvedor", LevelId = 4, SalarioBase = 12000, SalarioMaximo = 16000 },
-        };
-
-        return Task.CompletedTask;
+        // carrega toda a estrutura quando o CompanyId chegar ou mudar
+        await ReloadAsync();
     }
 
     // ===== Navegação / Seleção =====
-    public void SelectDepartment(int id)
+    public async Task SelectDepartmentAsync(int id)
     {
         SelectedDepartmentId = id;
-        // opcional: limpar seleção de cargo ao trocar de depto
         SelectedRoleId = null;
         SelectedRoleLevelId = null;
+
+        JobRoles = await Api.GetRolesAsync(CompanyId, id);
+        StateHasChanged();
     }
 
     public void SelectRole(int id)
@@ -76,11 +61,21 @@ public class OrganizationalStructureViewModel : ComponentBase
         SelectedRoleLevelId = role?.LevelId;
     }
 
-    public Task ReloadAsync()
+    public async Task ReloadAsync()
     {
-        // TODO: recarregar de serviços
+        if (CompanyId <= 0) return;
+
+        Departments = await Api.GetDepartmentsAsync(CompanyId);
+        Levels = await Api.GetLevelsAsync(CompanyId);
+
+        // Se já houver depto selecionado, recarrega seus cargos;
+        // senão limpa a grade de cargos.
+        if (SelectedDepartmentId is int dId && Departments.Any(d => d.Id == dId))
+            JobRoles = await Api.GetRolesAsync(CompanyId, dId);
+        else
+            JobRoles = new();
+
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
     // ===== Departamento: Modal CRUD =====
@@ -100,48 +95,51 @@ public class OrganizationalStructureViewModel : ComponentBase
 
     public void CloseDepartmentModal() => ShowDepartmentModal = false;
 
-    public Task SaveDepartmentAsync()
+    public async Task SaveDepartmentAsync()
     {
-        if (string.IsNullOrWhiteSpace(DepartmentEditing.Nome))
-            return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(DepartmentEditing.Nome)) return;
 
         if (DepartmentEditing.Id == 0)
         {
-            DepartmentEditing.Id = (Departments.LastOrDefault()?.Id ?? 0) + 1;
-            Departments.Add(new DepartmentDto { Id = DepartmentEditing.Id, Nome = DepartmentEditing.Nome });
+            // cria e usa o que a API devolve (com Id preenchido)
+            var created = await Api.CreateDepartmentAsync(CompanyId, DepartmentEditing);
+            Departments.Add(created);
         }
         else
         {
-            var d = Departments.First(x => x.Id == DepartmentEditing.Id);
-            d.Nome = DepartmentEditing.Nome;
+            var updated = await Api.UpdateDepartmentAsync(
+                CompanyId,
+                DepartmentEditing.Id,   // aqui é leitura, não atribuição
+                DepartmentEditing);
+
+            var idx = Departments.FindIndex(x => x.Id == updated.Id);
+            if (idx >= 0) Departments[idx] = updated;
         }
 
         ShowDepartmentModal = false;
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
-    public void ConfirmDeleteDepartment(int id)
+    public async Task ConfirmDeleteDepartmentAsync(int id)
     {
-        // Remoção simples + cascata em memória (remover cargos do depto)
+        await Api.DeleteDepartmentAsync(CompanyId, id);
         Departments.RemoveAll(d => d.Id == id);
-        JobRoles.RemoveAll(r => r.DepartmentId == id);
+
         if (SelectedDepartmentId == id)
         {
             SelectedDepartmentId = null;
             SelectedRoleId = null;
             SelectedRoleLevelId = null;
+            JobRoles.Clear();
         }
+        StateHasChanged();
     }
 
     // ===== Cargo: Modal CRUD =====
     public void OpenRoleModalNew()
     {
         RoleModalTitle = "Novo Cargo";
-        RoleEditing = new JobRoleDto
-        {
-            DepartmentId = SelectedDepartmentId ?? 0
-        };
+        RoleEditing = new JobRoleDto { DepartmentId = SelectedDepartmentId ?? 0 };
         ShowRoleModal = true;
     }
 
@@ -164,53 +162,66 @@ public class OrganizationalStructureViewModel : ComponentBase
 
     public void CloseRoleModal() => ShowRoleModal = false;
 
-    public Task SaveRoleAsync()
+    public async Task SaveRoleAsync()
     {
         if (string.IsNullOrWhiteSpace(RoleEditing.Nome) || RoleEditing.DepartmentId == 0 || RoleEditing.LevelId == 0)
-            return Task.CompletedTask;
+            return;
 
         if (RoleEditing.Id == 0)
         {
-            RoleEditing.Id = (JobRoles.LastOrDefault()?.Id ?? 0) + 1;
-            JobRoles.Add(RoleEditing);
+            var created = await Api.CreateRoleAsync(CompanyId, RoleEditing);
+            JobRoles.Add(created);
         }
         else
         {
-            var r = JobRoles.First(x => x.Id == RoleEditing.Id);
-            r.Nome = RoleEditing.Nome;
-            r.DepartmentId = RoleEditing.DepartmentId;
-            r.LevelId = RoleEditing.LevelId;
-            r.SalarioBase = RoleEditing.SalarioBase;
-            r.SalarioMaximo = RoleEditing.SalarioMaximo;
-            r.Requisitos = RoleEditing.Requisitos;
-            r.Responsabilidades = RoleEditing.Responsabilidades;
+            var updated = await Api.UpdateRoleAsync(CompanyId, RoleEditing.Id, RoleEditing);
+            var idx = JobRoles.FindIndex(x => x.Id == updated.Id);
+            if (idx >= 0) JobRoles[idx] = updated;
         }
 
         ShowRoleModal = false;
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
-    public void ConfirmDeleteRole(int id)
+    public async Task ConfirmDeleteRoleAsync(int id)
     {
+        await Api.DeleteRoleAsync(CompanyId, id);
         JobRoles.RemoveAll(r => r.Id == id);
+
         if (SelectedRoleId == id)
         {
             SelectedRoleId = null;
             SelectedRoleLevelId = null;
         }
+        StateHasChanged();
     }
 
-    public void OnChangeRoleLevel(ChangeEventArgs e)
+    public async Task OnChangeRoleLevelAsync(ChangeEventArgs e)
     {
         if (!SelectedRoleId.HasValue) return;
+        if (!int.TryParse(e?.Value?.ToString(), out var newLevelId)) return;
 
-        if (int.TryParse(e?.Value?.ToString(), out var newLevelId))
+        SelectedRoleLevelId = newLevelId;
+
+        // atualiza no servidor (reaproveita o PUT de role)
+        var role = JobRoles.First(r => r.Id == SelectedRoleId.Value);
+        var dto = new JobRoleDto
         {
-            SelectedRoleLevelId = newLevelId;
-            var role = JobRoles.First(r => r.Id == SelectedRoleId.Value);
-            role.LevelId = newLevelId;
-        }
+            Id = role.Id,
+            Nome = role.Nome,
+            DepartmentId = role.DepartmentId,
+            LevelId = newLevelId,
+            SalarioBase = role.SalarioBase,
+            SalarioMaximo = role.SalarioMaximo,
+            Requisitos = role.Requisitos,
+            Responsabilidades = role.Responsabilidades
+        };
+
+        var updated = await Api.UpdateRoleAsync(CompanyId, role.Id, dto);
+        var idx = JobRoles.FindIndex(x => x.Id == updated.Id);
+        if (idx >= 0) JobRoles[idx] = updated;
+
+        StateHasChanged();
     }
 
     // ===== Nível: Modal CRUD =====
@@ -224,42 +235,37 @@ public class OrganizationalStructureViewModel : ComponentBase
     public void OpenLevelModalEdit(JobLevelDto l)
     {
         LevelModalTitle = "Editar Nível";
-        LevelEditing = new JobLevelDto { Id = l.Id, Nome = l.Nome, Ordem = l.Ordem };
+        LevelEditing = new JobLevelDto { Id = l.Id, Nome = l.Nome };
         ShowLevelModal = true;
     }
 
     public void CloseLevelModal() => ShowLevelModal = false;
 
-    public Task SaveLevelAsync()
+    public async Task SaveLevelAsync()
     {
-        if (string.IsNullOrWhiteSpace(LevelEditing.Nome))
-            return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(LevelEditing.Nome)) return;
 
         if (LevelEditing.Id == 0)
         {
-            LevelEditing.Id = (Levels.LastOrDefault()?.Id ?? 0) + 1;
-            Levels.Add(new JobLevelDto { Id = LevelEditing.Id, Nome = LevelEditing.Nome, Ordem = LevelEditing.Ordem });
+            var created = await Api.CreateLevelAsync(CompanyId, LevelEditing);
+            Levels.Add(created);
         }
         else
         {
-            var l = Levels.First(x => x.Id == LevelEditing.Id);
-            l.Nome = LevelEditing.Nome;
-            l.Ordem = LevelEditing.Ordem;
+            var updated = await Api.UpdateLevelAsync(CompanyId, LevelEditing.Id, LevelEditing);
+            var idx = Levels.FindIndex(x => x.Id == updated.Id);
+            if (idx >= 0) Levels[idx] = updated;
         }
 
         ShowLevelModal = false;
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
-    public void ConfirmDeleteLevel(int id)
+    public async Task ConfirmDeleteLevelAsync(int id)
     {
-        // Evitar apagar nível em uso (simples verificação em memória)
-        if (JobRoles.Any(r => r.LevelId == id))
-        {
-            // aqui você pode exibir um alerta/toast na UI
-            return;
-        }
+        // servidor já valida "em uso"
+        await Api.DeleteLevelAsync(CompanyId, id);
         Levels.RemoveAll(x => x.Id == id);
+        StateHasChanged();
     }
 }

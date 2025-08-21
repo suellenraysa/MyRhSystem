@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyRhSystem.Contracts.Employees
 {
-    public class EmployeeDetailsDto
-    {       
-        public int Id { get; set; }
-
+    /// <summary>
+    /// Payload para criação de funcionário (sem Id).
+    /// Espelha os campos de EmployeeDetailsDto que fazem sentido na criação.
+    /// </summary>
+    public class CreateEmployeesRequest
+    {
         // Pessoais
         [Required, StringLength(100)]
         public string Nome { get; set; } = "";
@@ -16,7 +18,7 @@ namespace MyRhSystem.Contracts.Employees
         public string Sobrenome { get; set; } = "";
 
         [Required, StringLength(10)]
-        public string Sexo { get; set; } = "";  // AppDefaults.Genders
+        public string Sexo { get; set; } = ""; // AppDefaults.Genders
 
         [Required]
         public DateTime? DataNascimento { get; set; }
@@ -34,14 +36,14 @@ namespace MyRhSystem.Contracts.Employees
         [Required, StringLength(255)]
         public string Departamento { get; set; } = "";
 
-        [StringLength(255)]
+        [Required, StringLength(255)]
         public string Funcao { get; set; } = "";
 
         [Required, StringLength(255)]
         public string GrauInstrucao { get; set; } = "";
 
         [Required]
-        public bool Ativo { get; set; }
+        public bool Ativo { get; set; } = true;
 
         // Filiação
         [StringLength(100)]
@@ -51,7 +53,7 @@ namespace MyRhSystem.Contracts.Employees
         public string? NomePai { get; set; }
 
         // Documentos
-        [Required, StringLength(14)] // 000.000.000-00
+        [Required, StringLength(14)]
         public string Cpf { get; set; } = "";
 
         [StringLength(20)]
@@ -79,7 +81,7 @@ namespace MyRhSystem.Contracts.Employees
 
         // Contrato
         [Required, StringLength(20)]
-        public string TipoContrato { get; set; } = "";   // AppDefaults.WorkRegime
+        public string TipoContrato { get; set; } = ""; // AppDefaults.WorkRegime
 
         public int? JornadaHoras { get; set; }
 
@@ -125,32 +127,5 @@ namespace MyRhSystem.Contracts.Employees
         [Required] public string[] Beneficios { get; set; } = Array.Empty<string>();
         [Required] public TimeSpan HorarioEntrada { get; set; }
         [Required] public TimeSpan HorarioSaida { get; set; }
-    }
-
-    public class DependenteDto
-    {
-        public int Id { get; set; }
-
-        [Required, StringLength(100)]
-        public string? Nome { get; set; }
-
-        public DateTime? Nascimento { get; set; }
-
-        [StringLength(50)]
-        public string? GrauParentesco { get; set; }
-    }
-
-    public class ContatoDto
-    {
-        public int Id { get; set; }
-
-        [Required, StringLength(100)]
-        public string? Nome { get; set; }
-
-        [StringLength(50)]
-        public string? GrauParentesco { get; set; }
-
-        [StringLength(30)]
-        public string? Telefone { get; set; }
     }
 }

@@ -499,10 +499,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("nome");
 
-                    b.Property<int>("Ordem")
-                        .HasColumnType("int")
-                        .HasColumnName("ordem");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updated_at");

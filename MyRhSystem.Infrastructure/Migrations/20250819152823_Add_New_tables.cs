@@ -88,7 +88,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ordem = table.Column<int>(type: "int", nullable: false),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -317,14 +316,14 @@ namespace MyRhSystem.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "job_levels",
-                columns: new[] { "id", "created_at", "nome", "ordem", "updated_at" },
+                columns: new[] { "id", "created_at", "nome", "updated_at" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(5508), "Estagiário", 1, null },
-                    { 2, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6197), "Júnior", 2, null },
-                    { 3, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6271), "Pleno", 3, null },
-                    { 4, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272), "Sênior", 4, null },
-                    { 5, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272), "Trainer", 5, null }
+                    { 1, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(5508), "Estagiário", null },
+                    { 2, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6197), "Júnior", null },
+                    { 3, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6271), "Pleno", null },
+                    { 4, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272), "Sênior", null },
+                    { 5, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(6272), "Trainer", null }
                 });
 
             migrationBuilder.CreateIndex(

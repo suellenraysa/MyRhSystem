@@ -44,7 +44,7 @@ namespace MyRhSystem.Infrastructure.Migrations
         {
             migrationBuilder.InsertData(
                 table: "job_levels",
-                columns: new[] { "id", "created_at", "nome", "ordem", "updated_at" },
+                columns: new[] { "id", "created_at", "nome", "updated_at" },
                 values: new object[,]
                 {
                     { 1, new DateTime(2025, 8, 19, 15, 28, 22, 570, DateTimeKind.Utc).AddTicks(5508), "Estagiário", 1, null },

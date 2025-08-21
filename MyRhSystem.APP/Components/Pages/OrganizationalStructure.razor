@@ -41,17 +41,17 @@
                                 var active = d.Id == SelectedDepartmentId;
                                 <button id="dept-@d.Id" name="dept-@d.Id"
                                         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(active ? "active" : "")"
-                                        @onclick="@(() => SelectDepartment(d.Id))">
+                                        @onclick="@(() => SelectDepartmentAsync(d.Id))">
                                     <span>@d.Nome</span>
                                     <span class="d-flex gap-1">
                                         <button id="btn-edit-dept-@d.Id" name="btn-edit-dept-@d.Id"
                                                 class="btn btn-sm btn-outline-primary"
-                                                title="Editar" @onclick="@((_) => OpenDepartmentModalEdit(d))">
+                                                title="Editar" @onclick="@((_) => OpenDepartmentModalEdit(d))" @onclick:stopPropagation>
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <button id="btn-del-dept-@d.Id" name="btn-del-dept-@d.Id"
                                                 class="btn btn-sm btn-outline-danger"
-                                                title="Excluir" @onclick="@((_) => ConfirmDeleteDepartment(d.Id))">
+                                                title="Excluir" @onclick="@((_) => ConfirmDeleteDepartmentAsync(d.Id))" @onclick:stopPropagation>
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </span>
@@ -118,12 +118,12 @@
                                                         </button>
                                                         <button id="btn-role-edit-@r.Id" name="btn-role-edit-@r.Id"
                                                                 class="btn btn-outline-primary"
-                                                                title="Editar" @onclick="@(() => OpenRoleModalEdit(r))">
+                                                                title="Editar" @onclick="@(() => OpenRoleModalEdit(r))" @onclick:stopPropagation>
                                                             <i class="bi bi-pencil"></i>
                                                         </button>
                                                         <button id="btn-role-del-@r.Id" name="btn-role-del-@r.Id"
                                                                 class="btn btn-outline-danger"
-                                                                title="Excluir" @onclick="@(() => ConfirmDeleteRole(r.Id))">
+                                                                title="Excluir" @onclick="@(() => ConfirmDeleteRoleAsync(r.Id))" @onclick:stopPropagation>
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                     </div>
@@ -157,22 +157,21 @@
                         }
                         else
                         {
-                            @foreach (var l in Levels.OrderBy(x => x.Ordem).ThenBy(x => x.Nome))
+                            @foreach (var l in Levels)
                             {
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <div class="fw-semibold">@l.Nome</div>
-                                        <small class="text-muted">Ordem: @l.Ordem</small>
+                                        <div class="fw-semibold">@l.Nome</div>                                        
                                     </div>
                                     <div class="btn-group btn-group-sm">
                                         <button id="btn-level-edit-@l.Id" name="btn-level-edit-@l.Id"
                                                 class="btn btn-outline-primary" title="Editar"
-                                                @onclick="@(() => OpenLevelModalEdit(l))">
+                                                @onclick="@(() => OpenLevelModalEdit(l))" @onclick:stopPropagation>
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <button id="btn-level-del-@l.Id" name="btn-level-del-@l.Id"
                                                 class="btn btn-outline-danger" title="Excluir"
-                                                @onclick="@(() => ConfirmDeleteLevel(l.Id))">
+                                                @onclick="@(() => ConfirmDeleteLevelAsync(l.Id))" @onclick:stopPropagation>
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -186,8 +185,8 @@
                         <div class="border-top p-3">
                             <label for="role-level-bind" class="form-label fw-semibold">Nível do cargo selecionado</label>
                             <InputSelect id="role-level-bind" name="role-level-bind" class="form-select"
-                                         @bind-Value="SelectedRoleLevelId" @onchange="OnChangeRoleLevel">
-                                @foreach (var lv in Levels.OrderBy(x => x.Ordem))
+                                         @bind-Value="SelectedRoleLevelId" @onchange="OnChangeRoleLevelAsync">
+                                @foreach (var lv in Levels)
                                 {
                                     <option value="@lv.Id">@lv.Nome</option>
                                 }
@@ -268,7 +267,7 @@
                         <label for="role-level" class="form-label fw-semibold">Nível *</label>
                         <InputSelect id="role-level" name="role-level" class="form-select" @bind-Value="RoleEditing.LevelId">
                             <option value="">Selecione</option>
-                            @foreach (var lv in Levels.OrderBy(x => x.Ordem))
+                            @foreach (var lv in Levels)
                             {
                                 <option value="@lv.Id">@lv.Nome</option>
                             }
@@ -323,16 +322,13 @@
                 <div class="mb-3">
                     <label for="level-name" class="form-label fw-semibold">Nome *</label>
                     <InputText id="level-name" name="level-name" class="form-control" @bind-Value="LevelEditing.Nome" />
-                </div>
-                <div class="mb-3">
-                    <label for="level-ordem" class="form-label fw-semibold">Ordem</label>
-                    <InputNumber id="level-ordem" name="level-ordem" class="form-control" @bind-Value="LevelEditing.Ordem" />
-                </div>
+                </div>                
                 <div class="d-flex justify-content-end gap-2">
                     <button id="btn-level-cancel" name="btn-level-cancel" type="button" class="btn btn-light" @onclick="CloseLevelModal">Cancelar</button>
                     <button id="btn-level-save" name="btn-level-save" type="submit" class="btn btn-success">Salvar</button>
                 </div>
             </EditForm>
+
         </div>
     </div>
 }

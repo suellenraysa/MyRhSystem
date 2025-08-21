@@ -73,4 +73,16 @@
       <ProjectReference Include="..\MyRhSystem.Contracts\MyRhSystem.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="appsettings.Production.json">
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </Content>
+      <Content Update="appsettings.json">
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </Content>
+      <Content Update="appsettings.Development.json">
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

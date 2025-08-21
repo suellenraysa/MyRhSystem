@@ -24,7 +24,7 @@ namespace MyRhSystem.APP.Shared.ViewModels
         public IReadOnlyList<string> Genders => AppDefaults.Genders;
 
         // Listas carregadas (da API futuramente)
-        public List<DepartmentDto> Departments { get; set; } = new();
+        public List<BranchDtos> Departments { get; set; } = new();
         public List<JobRoleDto> JobRoles { get; set; } = new();
         public List<JobLevelDto> JobLevels { get; set; } = new();
 
@@ -71,7 +71,7 @@ namespace MyRhSystem.APP.Shared.ViewModels
             Details.Dependentes ??= new List<DependenteDto>();
             Details.Dependentes.Add(new DependenteDto
             {
-                Id = Guid.NewGuid(),
+                Id = 0,
                 Nome = "",
                 GrauParentesco = "",
                 Nascimento = DateTime.Today
@@ -79,7 +79,7 @@ namespace MyRhSystem.APP.Shared.ViewModels
             StateHasChanged();
         }
 
-        public void RemoveDependente(Guid id)
+        public void RemoveDependente(int id)
         {
             var item = Details?.Dependentes?.FirstOrDefault(x => x.Id == id);
             if (item != null) Details!.Dependentes!.Remove(item);
@@ -93,7 +93,7 @@ namespace MyRhSystem.APP.Shared.ViewModels
             Details.Contatos ??= new List<ContatoDto>();
             Details.Contatos.Add(new ContatoDto
             {
-                Id = Guid.NewGuid(),
+                Id = 0,
                 Nome = "",
                 GrauParentesco = "",
                 Telefone = ""
@@ -101,7 +101,7 @@ namespace MyRhSystem.APP.Shared.ViewModels
             StateHasChanged();
         }
 
-        public void RemoveContato(Guid id)
+        public void RemoveContato(int id)
         {
             var item = Details?.Contatos?.FirstOrDefault(x => x.Id == id);
             if (item != null) Details!.Contatos!.Remove(item);
@@ -170,18 +170,18 @@ namespace MyRhSystem.APP.Shared.ViewModels
         {
             Departments = new()
             {
-                new DepartmentDto { Id = 1, Nome = "RH" },
-                new DepartmentDto { Id = 2, Nome = "Financeiro" },
-                new DepartmentDto { Id = 3, Nome = "Tecnologia" },
+                new BranchDtos { Id = 1, Nome = "RH" },
+                new BranchDtos { Id = 2, Nome = "Financeiro" },
+                new BranchDtos { Id = 3, Nome = "Tecnologia" },
             };
 
             JobLevels = new()
             {
-                new JobLevelDto { Id = 1, Nome = "Estagiário", Ordem = 1 },
-                new JobLevelDto { Id = 2, Nome = "Júnior",     Ordem = 2 },
-                new JobLevelDto { Id = 3, Nome = "Pleno",      Ordem = 3 },
-                new JobLevelDto { Id = 4, Nome = "Sênior",     Ordem = 4 },
-                new JobLevelDto { Id = 5, Nome = "Trainer",    Ordem = 5 },
+                new JobLevelDto { Id = 1, Nome = "Estagiário"},
+                new JobLevelDto { Id = 2, Nome = "Júnior"},
+                new JobLevelDto { Id = 3, Nome = "Pleno"},
+                new JobLevelDto { Id = 4, Nome = "Sênior"},
+                new JobLevelDto { Id = 5, Nome = "Trainer"},
             };
 
             JobRoles = new()
@@ -204,46 +204,141 @@ namespace MyRhSystem.APP.Shared.ViewModels
         {
             if (Details is null) return;
 
-            // 1) aplica o combo de Status no DTO
-            Details.Ativo = Status ?? false;
+            // mantém Status -> Details
+            SyncStatusToDetails();
 
-            // 2) horários
-            Details.HorarioEntrada = BuildTime(EntradaHora, EntradaMinuto);
-            Details.HorarioSaida = BuildTime(SaidaHora, SaidaMinuto);
+            // se usar selects, alinhe os textos mostrados
+            if (SelectedDepartmentId is not null)
+                Details.Departamento = Departments.FirstOrDefault(d => d.Id == SelectedDepartmentId)!.Nome;
 
-            // 3) nomes de Departamento/Cargo a partir dos ids selecionados
-            if (SelectedDepartmentId is int depId)
+            if (SelectedJobRoleId is not null)
             {
-                var dep = Departments.FirstOrDefault(d => d.Id == depId);
-                if (dep is not null) Details.Departamento = dep.Nome;
-            }
-
-            if (SelectedJobRoleId is int roleId)
-            {
-                var role = JobRoles.FirstOrDefault(r => r.Id == roleId);
+                var role = JobRoles.FirstOrDefault(r => r.Id == SelectedJobRoleId);
                 if (role is not null)
                 {
                     Details.Cargo = role.Nome;
-                    if (string.IsNullOrWhiteSpace(Details.Funcao))
-                        Details.Funcao = role.Nome; // opcional: por enquanto iguala função ao cargo
+                    Details.Funcao = role.Nome; // se desejar
                 }
             }
 
-            // 4) cria ou atualiza
-            if (Details!.Id == Guid.Empty)
+            if (Details.Id == 0)
             {
-                // create
-                Details = await EmployeesApi.CreateAsync(Details, ct);
-                Status = Details.Ativo;
+                // === CREATE ===
+                var req = new CreateEmployeesRequest
+                {
+                    // pessoais
+                    Nome = Details.Nome,
+                    Sobrenome = Details.Sobrenome,
+                    Sexo = Details.Sexo,
+                    DataNascimento = Details.DataNascimento,
+                    Email = Details.Email,
+                    Telefone = Details.Telefone,
+
+                    // profissional
+                    Cargo = Details.Cargo,
+                    Departamento = Details.Departamento,
+                    Funcao = Details.Funcao,
+                    GrauInstrucao = Details.GrauInstrucao,
+                    Ativo = Details.Ativo,
+
+                    // filiação
+                    NomeMae = Details.NomeMae,
+                    NomePai = Details.NomePai,
+
+                    // documentos
+                    Cpf = Details.Cpf,
+                    Rg = Details.Rg,
+                    OrgaoEmissor = Details.OrgaoEmissor,
+                    RgEmissao = Details.RgEmissao,
+                    TituloEleitor = Details.TituloEleitor,
+                    Zona = Details.Zona,
+                    Sessao = Details.Sessao,
+                    CtpsNumero = Details.CtpsNumero,
+                    CtpsSerie = Details.CtpsSerie,
+
+                    // contrato
+                    TipoContrato = Details.TipoContrato,
+                    JornadaHoras = Details.JornadaHoras,
+                    Admissao = Details.Admissao,
+                    DataExperiencia = Details.DataExperiencia,
+                    DataExperiencia1 = Details.DataExperiencia1,
+                    Contratacao = Details.Contratacao,
+                    Salario = Details.Salario,
+
+                    // endereço
+                    Endereco = Details.Endereco,
+                    Numero = Details.Numero,
+                    Complemento = Details.Complemento,
+                    Bairro = Details.Bairro,
+                    Cidade = Details.Cidade,
+                    UF = Details.UF,
+                    Cep = Details.Cep,
+
+                    // coleções/outros
+                    Dependentes = Details.Dependentes,
+                    Contatos = Details.Contatos,
+                    Beneficios = Details.Beneficios,
+                    HorarioEntrada = Details.HorarioEntrada,
+                    HorarioSaida = Details.HorarioSaida
+                };
+
+                var created = await EmployeesApi.CreateAsync(req, ct);
+                Details.Id = created.Id; // agora o DTO “conhece” seu Id
             }
             else
             {
-                // update
-                await EmployeesApi.UpdateAsync(Details.Id, Details, ct);
+                // === UPDATE ===
+                var req = new UpdateEmployeesRequest
+                {
+                    Id = Details.Id,
+                    // preencha os mesmos campos que desejar atualizar
+                    Nome = Details.Nome,
+                    Sobrenome = Details.Sobrenome,
+                    Sexo = Details.Sexo,
+                    DataNascimento = Details.DataNascimento,
+                    Email = Details.Email,
+                    Telefone = Details.Telefone,
+                    Cargo = Details.Cargo,
+                    Departamento = Details.Departamento,
+                    Funcao = Details.Funcao,
+                    GrauInstrucao = Details.GrauInstrucao,
+                    Ativo = Details.Ativo,
+                    NomeMae = Details.NomeMae,
+                    NomePai = Details.NomePai,
+                    Cpf = Details.Cpf,
+                    Rg = Details.Rg,
+                    OrgaoEmissor = Details.OrgaoEmissor,
+                    RgEmissao = Details.RgEmissao,
+                    TituloEleitor = Details.TituloEleitor,
+                    Zona = Details.Zona,
+                    Sessao = Details.Sessao,
+                    CtpsNumero = Details.CtpsNumero,
+                    CtpsSerie = Details.CtpsSerie,
+                    TipoContrato = Details.TipoContrato,
+                    JornadaHoras = Details.JornadaHoras,
+                    Admissao = Details.Admissao,
+                    DataExperiencia = Details.DataExperiencia,
+                    DataExperiencia1 = Details.DataExperiencia1,
+                    Contratacao = Details.Contratacao,
+                    Salario = Details.Salario,
+                    Endereco = Details.Endereco,
+                    Numero = Details.Numero,
+                    Complemento = Details.Complemento,
+                    Bairro = Details.Bairro,
+                    Cidade = Details.Cidade,
+                    UF = Details.UF,
+                    Cep = Details.Cep,
+                    Dependentes = Details.Dependentes,
+                    Contatos = Details.Contatos,
+                    Beneficios = Details.Beneficios,
+                    HorarioEntrada = Details.HorarioEntrada,
+                    HorarioSaida = Details.HorarioSaida
+                };
+
+                await EmployeesApi.UpdateAsync(Details.Id, req, ct);
             }
 
-            // 5) fecha modal
-            await CancelAsync();
+            await CancelAsync(); // fecha modal
         }
 
         // Helper para aplicar Status -> Details antes de salvar (se necessário)

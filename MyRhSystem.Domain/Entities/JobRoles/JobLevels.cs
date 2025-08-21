@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MyRhSystem.Domain.Entities.Companies;
 
 namespace MyRhSystem.Domain.Entities.JobRoles
 {
@@ -14,18 +15,19 @@ namespace MyRhSystem.Domain.Entities.JobRoles
         [Column("nome")]
         public string Nome { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Ordem hierárquica do nível 
-        /// (1 = Estagiário, 2 = Júnior, 3 = Pleno, 4 = Sênior, 5 = Trainer).
-        /// </summary>
-        [Required]
-        [Column("ordem")]
-        public int Ordem { get; set; }
+        [Column("company_id")]
+        public int CompanyId { get; set; }
 
+        [ForeignKey(nameof(CompanyId))]
+        public Company Company { get; set; } = default!;
+
+        // ========= Auditoria =========
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Column("updated_at")]
         public DateTime? UpdatedAt { get; set; }
+
+        public ICollection<JobRole> JobRoles { get; set; } = new List<JobRole>();
     }
 }
