@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MyRhSystem.API.Helpers;
 using MyRhSystem.Contracts.Auth;
 using MyRhSystem.Contracts.Users;
 using MyRhSystem.Domain.Entities.Users;
@@ -17,7 +18,7 @@ public static class AuthEndpoints
             return Results.Ok(new HasAnyUserResponse(any));
         });
 
-        g.MapPost("login", async (AppDbContext db, IMapper mapper, LoginRequest req) =>
+        g.MapPost("login", async (AppDbContext db, IMapper mapper, IConfiguration cfg, LoginRequest req) =>
         {
             var user = await db.Set<User>().FirstOrDefaultAsync(u => u.Email == req.Email);
             if (user is null) return Results.Unauthorized();
@@ -26,7 +27,10 @@ public static class AuthEndpoints
             if (!ok) return Results.Unauthorized();
 
             var dto = mapper.Map<UserDto>(user);
-            return Results.Ok(new LoginResponse(dto, token: null));
+
+            var token = JwtTokenService.IssueToken(cfg, user);
+
+            return Results.Ok(new LoginResponse(dto, token));
         });
 
         return g;
