@@ -1,9 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MyRhSystem.Domain.Entities.Companies;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyRhSystem.APP.Shared.Models;
 
 public class LegalRepresentativeModel
 {
+
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
     [Required(ErrorMessage = "Nome completo é obrigatório")]
     public string FullName { get; set; } = string.Empty;
 
@@ -18,4 +25,8 @@ public class LegalRepresentativeModel
     [Required(ErrorMessage = "Email é obrigatório")]
     [EmailAddress(ErrorMessage = "Email inválido")]
     public string Email { get; set; } = string.Empty;
+
+ 
+    public Company? Company { get; set; }
+
 }

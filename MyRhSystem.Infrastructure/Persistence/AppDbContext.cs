@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyRhSystem.APP.Shared.Models;
 using MyRhSystem.Application.Abstractions;
 using MyRhSystem.Domain.Entities.Companies;
 using MyRhSystem.Domain.Entities.Departments;
@@ -24,6 +25,9 @@ namespace MyRhSystem.Infrastructure.Persistence
         public DbSet<JobRole> JobRoles => Set<JobRole>();
         public DbSet<JobLevels> JobLevels => Set<JobLevels>();
 
+        public DbSet<Reminder> Reminders => Set<Reminder>();
+        
+        public DbSet<LegalRepresentativeModel> LegalRepresentatives => Set<LegalRepresentativeModel>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder mb)
@@ -46,16 +50,50 @@ namespace MyRhSystem.Infrastructure.Persistence
                 e.ToTable("companies");
                 e.HasKey(c => c.Id);
 
-                e.Property(c => c.Nome).HasColumnName("nome").HasMaxLength(255);
-                e.Property(c => c.CreatedAt).HasColumnName("createdAt");
-
-                e.Property(c => c.AddressId).HasColumnName("address_id");
-
-                // FK opcional para Address
                 e.HasOne(c => c.Address)
-                 .WithMany()                      // sem navegação inversa
-                 .HasForeignKey(c => c.AddressId)
-                 .OnDelete(DeleteBehavior.Restrict); // evita múltiplos cascades
+                    .WithMany()
+                    .HasForeignKey(c => c.AddressId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasMany(c => c.UserCompanies)
+                    .WithOne(uc => uc.Company)
+                    .HasForeignKey(uc => uc.CompanyId);
+
+                e.HasMany(c => c.Employees)
+                    .WithOne(emp => emp.Company)
+                    .HasForeignKey(emp => emp.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // 1:1 -> empresa tem um representante, representante só pode estar numa empresa
+                e.HasOne(c => c.Representative)
+                    .WithOne(r => r.Company)
+                    .HasForeignKey<Company>(c => c.RepresentativeId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                e.HasOne(c => c.CreatedBy)
+                      .WithMany() // se não precisar navegação reversa
+                      .HasForeignKey(c => c.CreatedByUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            mb.Entity<Reminder>(e =>
+            {
+                e.HasIndex(x => new { x.CompanyId, x.IsDone });
+                e.HasIndex(x => x.RemindAt);
+                e.HasIndex(x => x.DueAt);
+
+                e.Property(x => x.Title).HasMaxLength(200).IsRequired();
+                e.Property(x => x.Notes).HasMaxLength(4000);
+            });
+
+            mb.Entity<LegalRepresentativeModel>(e =>
+            {
+                e.ToTable("legal_representatives");
+                e.HasKey(r => r.Id);
+
+                e.Property(r => r.FullName).HasMaxLength(255).IsRequired();
+                e.Property(r => r.CPF).HasMaxLength(20).IsRequired();
+                e.HasIndex(r => r.CPF).IsUnique(); // garante que CPF seja único
             });
 
             mb.Entity<Address>(e =>
@@ -92,7 +130,7 @@ namespace MyRhSystem.Infrastructure.Persistence
                 e.Property(x => x.DataNascimento).HasColumnName("data_nascimento").IsRequired();
                 e.Property(x => x.Email).HasColumnName("email").HasMaxLength(80);
                 e.Property(x => x.Telefone).HasColumnName("telefone").HasMaxLength(30).IsRequired();
-
+                
                 e.Property(x => x.AddressId).HasColumnName("address_id");
                 e.HasOne(x => x.Address)
                  .WithMany()

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyRhSystem.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using MyRhSystem.Infrastructure.Persistence;
 namespace MyRhSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250820191558_add_referencia")]
+    partial class add_referencia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,10 +197,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int")
-                        .HasColumnName("created_by_user_id");
-
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("email");
@@ -217,8 +216,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
-
-                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("RepresentativeId")
                         .IsUnique()
@@ -829,19 +826,12 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("MyRhSystem.Domain.Entities.Users.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("MyRhSystem.APP.Shared.Models.LegalRepresentativeModel", "Representative")
                         .WithOne("Company")
                         .HasForeignKey("MyRhSystem.Domain.Entities.Companies.Company", "RepresentativeId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Address");
-
-                    b.Navigation("CreatedBy");
 
                     b.Navigation("Representative");
                 });
