@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyRhSystem.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using MyRhSystem.Infrastructure.Persistence;
 namespace MyRhSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250820141950_Adcionando_reminder_representative")]
+    partial class Adcionando_reminder_representative
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +36,11 @@ namespace MyRhSystem.Infrastructure.Migrations
 
                     b.Property<string>("CPF")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int")
+                        .HasColumnName("company_id");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -42,8 +48,7 @@ namespace MyRhSystem.Infrastructure.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -51,8 +56,7 @@ namespace MyRhSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CPF")
-                        .IsUnique();
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("legal_representatives", (string)null);
                 });
@@ -173,47 +177,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.ToTable("benefit_types");
                 });
 
-            modelBuilder.Entity("MyRhSystem.Domain.Entities.Companies.Branch", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("int")
-                        .HasColumnName("address_id");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int")
-                        .HasColumnName("company_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("createdAt");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("nome");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("CompanyId", "Nome")
-                        .HasDatabaseName("UX_branches_company_nome");
-
-                    b.ToTable("branches", (string)null);
-                });
-
             modelBuilder.Entity("MyRhSystem.Domain.Entities.Companies.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -235,39 +198,22 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt");
 
-                    b.Property<int?>("CreatedByUserId")
-                        .HasColumnType("int")
-                        .HasColumnName("created_by_user_id");
-
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("email");
 
                     b.Property<string>("Nome")
-                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("nome");
-
-                    b.Property<int?>("RepresentativeId")
-                        .HasColumnType("int")
-                        .HasColumnName("representative_id");
 
                     b.Property<string>("Telefone")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("telefone");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("RepresentativeId")
-                        .IsUnique()
-                        .HasFilter("[representative_id] IS NOT NULL");
 
                     b.ToTable("companies", (string)null);
                 });
@@ -308,10 +254,6 @@ namespace MyRhSystem.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int")
-                        .HasColumnName("company_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
@@ -322,17 +264,14 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(150)")
                         .HasColumnName("nome");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId", "Nome")
-                        .HasDatabaseName("UX_departments_company_nome");
+                    b.HasIndex("Nome")
+                        .HasDatabaseName("UX_departments_nome");
 
                     b.HasIndex(new[] { "Nome" }, "UX_departments_nome")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UX_departments_nome1");
 
                     b.ToTable("departments", (string)null);
                 });
@@ -663,10 +602,6 @@ namespace MyRhSystem.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int")
-                        .HasColumnName("company_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
@@ -677,14 +612,19 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("nome");
 
+                    b.Property<int>("Ordem")
+                        .HasColumnType("int")
+                        .HasColumnName("ordem");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId", "Nome")
-                        .HasDatabaseName("UX_job_levels_company_nome");
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("UX_job_levels_nome");
 
                     b.ToTable("job_levels", (string)null);
                 });
@@ -697,10 +637,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int")
-                        .HasColumnName("company_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -746,8 +682,8 @@ namespace MyRhSystem.Infrastructure.Migrations
 
                     b.HasIndex("LevelId");
 
-                    b.HasIndex("CompanyId", "DepartmentId", "Nome")
-                        .HasDatabaseName("UX_job_roles_company_dept_nome");
+                    b.HasIndex("Nome", "DepartmentId")
+                        .HasDatabaseName("UX_job_roles_nome_department");
 
                     b.ToTable("job_roles", (string)null);
                 });
@@ -849,6 +785,17 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.ToTable("addresses", (string)null);
                 });
 
+            modelBuilder.Entity("MyRhSystem.APP.Shared.Models.LegalRepresentativeModel", b =>
+                {
+                    b.HasOne("MyRhSystem.Domain.Entities.Companies.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("MyRhSystem.APP.Shared.Models.Reminder", b =>
                 {
                     b.HasOne("MyRhSystem.Domain.Entities.Users.User", "AssignedUser")
@@ -877,24 +824,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("MyRhSystem.Domain.Entities.Companies.Branch", b =>
-                {
-                    b.HasOne("MyRhSystem.Domain.Entities.ValueObjects.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MyRhSystem.Domain.Entities.Companies.Company", "Company")
-                        .WithMany("Branches")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Address");
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("MyRhSystem.Domain.Entities.Companies.Company", b =>
                 {
                     b.HasOne("MyRhSystem.Domain.Entities.ValueObjects.Address", "Address")
@@ -902,21 +831,7 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("MyRhSystem.Domain.Entities.Users.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MyRhSystem.APP.Shared.Models.LegalRepresentativeModel", "Representative")
-                        .WithOne("Company")
-                        .HasForeignKey("MyRhSystem.Domain.Entities.Companies.Company", "RepresentativeId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("Address");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Representative");
                 });
 
             modelBuilder.Entity("MyRhSystem.Domain.Entities.Companies.UserCompany", b =>
@@ -936,17 +851,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MyRhSystem.Domain.Entities.Departments.Department", b =>
-                {
-                    b.HasOne("MyRhSystem.Domain.Entities.Companies.Company", "Company")
-                        .WithMany("Departments")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("MyRhSystem.Domain.Entities.Employees.Employee", b =>
@@ -1030,25 +934,8 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("MyRhSystem.Domain.Entities.JobRoles.JobLevels", b =>
-                {
-                    b.HasOne("MyRhSystem.Domain.Entities.Companies.Company", "Company")
-                        .WithMany("JobLevels")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("MyRhSystem.Domain.Entities.JobRoles.JobRole", b =>
                 {
-                    b.HasOne("MyRhSystem.Domain.Entities.Companies.Company", "Company")
-                        .WithMany("JobRoles")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MyRhSystem.Domain.Entities.Departments.Department", "Department")
                         .WithMany("JobRoles")
                         .HasForeignKey("DepartmentId")
@@ -1056,34 +943,19 @@ namespace MyRhSystem.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("MyRhSystem.Domain.Entities.JobRoles.JobLevels", "Level")
-                        .WithMany("JobRoles")
+                        .WithMany()
                         .HasForeignKey("LevelId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Company");
 
                     b.Navigation("Department");
 
                     b.Navigation("Level");
                 });
 
-            modelBuilder.Entity("MyRhSystem.APP.Shared.Models.LegalRepresentativeModel", b =>
-                {
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("MyRhSystem.Domain.Entities.Companies.Company", b =>
                 {
-                    b.Navigation("Branches");
-
-                    b.Navigation("Departments");
-
                     b.Navigation("Employees");
-
-                    b.Navigation("JobLevels");
-
-                    b.Navigation("JobRoles");
 
                     b.Navigation("UserCompanies");
                 });
@@ -1104,11 +976,6 @@ namespace MyRhSystem.Infrastructure.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("EmployeeBenefits");
-                });
-
-            modelBuilder.Entity("MyRhSystem.Domain.Entities.JobRoles.JobLevels", b =>
-                {
-                    b.Navigation("JobRoles");
                 });
 
             modelBuilder.Entity("MyRhSystem.Domain.Entities.Users.User", b =>

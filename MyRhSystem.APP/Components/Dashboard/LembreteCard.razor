@@ -1,15 +1,14 @@
 ﻿@using MyRhSystem.APP.Shared.Models;
 
 @using Microsoft.AspNetCore.Components;
-<div class="lembrete-card @(Lembrete.Concluido ? "concluido" : "")">
-    <div class="lembrete-titulo">@Lembrete.Titulo</div>
-    <div class="lembrete-descricao">@Lembrete.Descricao</div>
+<div class="lembrete-card  "concluido")">
+    <div class="lembrete-titulo">Titulo</div>
+    <div class="lembrete-descricao">Descricao</div>
     <div class="lembrete-footer">
-        <span class="prioridade">@Lembrete.Prioridade</span>
-        <span class="data">@Lembrete.Data.ToString("dd/MM/yyyy")</span>
+        <span class="prioridade">Prioridade</span>
+        <span class="data">Data.ToString("dd/MM/yyyy")</span>
     </div>
 </div>
 
 @code {
-    [Parameter] public ReminderModel Lembrete { get; set; } = new();
 }
