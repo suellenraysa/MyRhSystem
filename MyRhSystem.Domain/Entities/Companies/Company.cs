@@ -5,9 +5,7 @@ using MyRhSystem.Domain.Entities.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using MyRhSystem.Domain.Entities.Departments;
-using MyRhSystem.Domain.Entities.Employees;
 using MyRhSystem.Domain.Entities.JobRoles;
-using MyRhSystem.Domain.Entities.ValueObjects;
 
 namespace MyRhSystem.Domain.Entities.Companies;
 

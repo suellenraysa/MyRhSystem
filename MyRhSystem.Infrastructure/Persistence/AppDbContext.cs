@@ -93,11 +93,9 @@ namespace MyRhSystem.Infrastructure.Persistence
                 e.ToTable("legal_representatives");
                 e.HasKey(r => r.Id);
 
-                // FK opcional para Address
-                e.HasOne(c => c.Address)
-                 .WithMany()                      // sem navegação inversa
-                 .HasForeignKey(c => c.AddressId)
-                 .OnDelete(DeleteBehavior.Restrict); // evita múltiplos cascades
+                e.Property(r => r.FullName).HasMaxLength(255).IsRequired();
+                e.Property(r => r.CPF).HasMaxLength(20).IsRequired();
+                e.HasIndex(r => r.CPF).IsUnique(); // garante que CPF seja único
             });
 
             // ===== Branches (Filiais) =====
